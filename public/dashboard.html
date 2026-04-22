@@ -73,44 +73,54 @@
   .proof-images { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;}
   .proof-images img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #eaeaea; }
 
-  /* AI Processing Overlay */
-  .processing-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; color: white; font-family: monospace; }
-  .processing-box { background: #1a1a1a; padding: 40px; border-radius: 12px; border: 1px solid #333; width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-  .processing-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: var(--accent-color); border-bottom: 1px solid #333; padding-bottom: 10px;}
-  .step-row { margin-bottom: 15px; font-size: 14px; color: #888; display: flex; justify-content: space-between;}
-  .step-row.active { color: white; }
-  .step-row.success { color: #34a853; }
-  .step-row.warning { color: #fbbc04; }
-  .step-row.error { color: #ea4335; }
-  .score-display { font-size: 32px; font-weight: bold; text-align: center; margin: 20px 0; color: #fff; }
-  .close-overlay-btn { display: none; width: 100%; padding: 12px; background: #333; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 20px; font-family: inherit;}
-  .close-overlay-btn:hover { background: #444; }
+  /* Modern AI Processing Overlay */
+  .processing-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(32, 33, 36, 0.4); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; }
+  .processing-box { background: white; padding: 40px; border-radius: 24px; width: 420px; box-shadow: 0 24px 60px rgba(0,0,0,0.15); text-align: center; }
+  .ai-icon-container { width: 64px; height: 64px; background: #e8f0fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; animation: pulseGlow 2s infinite; }
+  @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(26,115,232,0.4); } 70% { box-shadow: 0 0 0 15px rgba(26,115,232,0); } 100% { box-shadow: 0 0 0 0 rgba(26,115,232,0); } }
+  .processing-title { font-size: 22px; font-weight: 700; color: #202124; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .processing-subtitle { font-size: 14px; color: #5f6368; margin-bottom: 30px; }
+  
+  .step-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #f8f9fa; border-radius: 12px; margin-bottom: 12px; font-size: 14px; color: #5f6368; font-weight: 500; transition: all 0.3s ease; border: 1px solid transparent;}
+  .step-row.active { background: #e8f0fe; color: #1a73e8; border-color: rgba(26, 115, 232, 0.2); }
+  .step-row.success { background: #e6f4ea; color: #1e8e3e; border-color: rgba(30, 142, 62, 0.2); }
+  .step-row.warning { background: #fef7e0; color: #b06000; border-color: rgba(249, 171, 0, 0.2); }
+  .step-row.error { background: #fce8e6; color: #d93025; border-color: rgba(217, 48, 37, 0.2); }
+  
+  .score-display { font-size: 48px; font-weight: 800; color: #202124; margin: 25px 0; display: none; letter-spacing: -1px;}
+  
+  .close-overlay-btn { display: none; width: 100%; padding: 14px; background: var(--accent-color); color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 25px; font-size: 15px; font-weight: 600; transition: 0.2s; }
+  .close-overlay-btn:hover { background: #1557b0; box-shadow: 0 4px 12px rgba(26,115,232,0.3); }
 </style>
 </head>
 <body>
-<div class="processing-overlay" id="processingOverlay">
+
+  <div class="processing-overlay" id="processingOverlay">
     <div class="processing-box">
-      <div class="processing-title">⚙️ SYSTEM VERIFICATION ROUTINE</div>
+      <div class="ai-icon-container" id="aiIcon">✨</div>
+      <div class="processing-title">AI Verification System</div>
+      <div class="processing-subtitle">Analyzing reported infrastructure issue</div>
       
+      <div class="score-display" id="scoreDisplay">0%</div>
+
       <div class="step-row" id="step1">
-        <span>[1] Initiating AI Vision Analysis...</span>
-        <span id="step1-status">Waiting</span>
+        <span style="display:flex; align-items:center; gap:8px;"><span id="step1-icon">⏳</span> Image Analysis</span>
+        <span id="step1-status">Waiting...</span>
       </div>
-      
-      <div class="score-display" id="scoreDisplay">--%</div>
       
       <div class="step-row" id="step2">
-        <span>[2] Cross-Referencing 50m Geo-Fence...</span>
-        <span id="step2-status">Waiting</span>
+        <span style="display:flex; align-items:center; gap:8px;"><span id="step2-icon">⏳</span> Geo-Spatial Scan</span>
+        <span id="step2-status">Waiting...</span>
       </div>
 
-      <div class="step-row" id="finalResult" style="margin-top: 30px; font-weight: bold; font-size: 16px; display: none;">
+      <div class="step-row" id="finalResult" style="display: none; justify-content: center; text-align: center; margin-top: 20px;">
         <span id="finalMessage">Result...</span>
       </div>
 
       <button class="close-overlay-btn" id="closeOverlayBtn" onclick="closeOverlay()">Acknowledge & Continue</button>
     </div>
   </div>
+
   <div class="top-navbar">
     <div class="notification-bell" onclick="toggleNotifs()">
       🔔 <span id="notifCount" class="badge" style="display:none;">0</span>
@@ -419,14 +429,22 @@
     } catch (error) { console.log(error); }
   }
 
-  // --- NEW: The AI Verification Magic Show Logic ---
-  function animateScore(targetScore) {
+  // --- UPDATED: Modern AI Verification Animation ---
+  function animateScore(targetScore, statusClass) {
     let current = 0;
     const scoreEl = document.getElementById("scoreDisplay");
+    scoreEl.style.display = "block";
+    
+    // Set color based on final result
+    if (statusClass === "success") scoreEl.style.color = "#1e8e3e";
+    else if (statusClass === "warning") scoreEl.style.color = "#b06000";
+    else if (statusClass === "error") scoreEl.style.color = "#d93025";
+    else scoreEl.style.color = "#1a73e8";
+
     const interval = setInterval(() => {
       current += 2;
       if (current >= targetScore) {
-        scoreEl.innerText = targetScore + "% Confidence";
+        scoreEl.innerText = targetScore + "% Match";
         clearInterval(interval);
       } else {
         scoreEl.innerText = current + "%";
@@ -445,72 +463,89 @@
     const formElement = e.target;
     const formData = new FormData(formElement);
     
-    // 1. Show the overlay
+    // 1. Show the modern overlay
     document.getElementById("processingOverlay").style.display = "flex";
     
     // Reset UI
+    document.getElementById("aiIcon").innerText = "✨";
+    document.getElementById("aiIcon").style.animation = "pulseGlow 2s infinite";
+    document.getElementById("scoreDisplay").style.display = "none";
+    document.getElementById("scoreDisplay").style.color = "#202124";
+
     document.getElementById("step1").className = "step-row active";
-    document.getElementById("step1-status").innerText = "Analyzing";
+    document.getElementById("step1-icon").innerText = "⚙️";
+    document.getElementById("step1-status").innerText = "Analyzing...";
+    
     document.getElementById("step2").className = "step-row";
-    document.getElementById("step2-status").innerText = "Waiting";
+    document.getElementById("step2-icon").innerText = "⏳";
+    document.getElementById("step2-status").innerText = "Waiting...";
+    
     document.getElementById("finalResult").style.display = "none";
-    document.getElementById("scoreDisplay").innerText = "0%";
-    document.getElementById("scoreDisplay").style.color = "white";
 
     try {
-      // Watch the "Analyzing" state
       await new Promise(r => setTimeout(r, 1200));
 
       const res = await fetch("http://localhost:5000/complaint", { method: "POST", body: formData });
       const result = await res.json();
 
+      let mainStatusClass = "success";
+      if (result.status === "duplicate") mainStatusClass = "warning";
+      if (result.status === "rejected") mainStatusClass = "error";
+      if (result.status === "review") mainStatusClass = "warning";
+
       // 2. Animate the AI Score
-      document.getElementById("step1").className = "step-row success";
+      document.getElementById("step1").className = `step-row ${mainStatusClass}`;
+      document.getElementById("step1-icon").innerText = "✅";
       document.getElementById("step1-status").innerText = "Complete";
-      animateScore(result.confidenceScore);
+      animateScore(result.confidenceScore, mainStatusClass);
       
-      // Watch score
       await new Promise(r => setTimeout(r, 1500));
 
       // 3. Animate the Geo-Fence Scan
       document.getElementById("step2").className = "step-row active";
-      document.getElementById("step2-status").innerText = "Scanning...";
+      document.getElementById("step2-icon").innerText = "📍";
+      document.getElementById("step2-status").innerText = "Scanning Area...";
       
       await new Promise(r => setTimeout(r, 1200));
 
-      // 4. Show the Final Result based on the backend simulation
+      // 4. Show the Final Result
       const finalRow = document.getElementById("finalResult");
       const finalMsg = document.getElementById("finalMessage");
-      const scoreEl = document.getElementById("scoreDisplay");
       
       finalRow.style.display = "flex";
       finalMsg.innerText = result.message;
 
+      // Stop the sparkle animation
+      document.getElementById("aiIcon").style.animation = "none";
+
       if (result.status === "duplicate") {
+        document.getElementById("aiIcon").innerText = "⚠️";
         document.getElementById("step2").className = "step-row warning";
+        document.getElementById("step2-icon").innerText = "⚠️";
         document.getElementById("step2-status").innerText = "Match Found";
         finalRow.className = "step-row warning";
       } else if (result.status === "rejected") {
+        document.getElementById("aiIcon").innerText = "❌";
         document.getElementById("step2").className = "step-row error";
+        document.getElementById("step2-icon").innerText = "❌";
         document.getElementById("step2-status").innerText = "Aborted";
-        scoreEl.style.color = "#ea4335";
         finalRow.className = "step-row error";
       } else if (result.status === "review") {
+        document.getElementById("aiIcon").innerText = "🛡️";
         document.getElementById("step2").className = "step-row success";
+        document.getElementById("step2-icon").innerText = "✅";
         document.getElementById("step2-status").innerText = "Clear";
-        scoreEl.style.color = "#fbbc04";
         finalRow.className = "step-row warning";
       } else {
+        document.getElementById("aiIcon").innerText = "✅";
         document.getElementById("step2").className = "step-row success";
+        document.getElementById("step2-icon").innerText = "✅";
         document.getElementById("step2-status").innerText = "Clear";
-        scoreEl.style.color = "#34a853";
         finalRow.className = "step-row success";
       }
 
-      // Show close button
       document.getElementById("closeOverlayBtn").style.display = "block";
       
-      // Reload data
       formElement.reset(); 
       loadComplaints();
 

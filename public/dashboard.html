@@ -1,341 +1,610 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - FixMyCity</title>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-body {
-  margin: 0;
-  font-family: 'Georgia', serif;
-  background: #f4f4f4;
-  animation: fadePage 0.6s ease;
-}
-
-@keyframes fadePage {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Navbar */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 50px;
-  background: white;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-.logo-area {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.logo-area img {
-  height: 65px;
-}
-
-.logo-text {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.logo-slogan {
-  font-size: 12px;
-  color: #555;
-  font-family: Arial;
-}
-
-.system-area {
-  font-family: Arial;
-  font-size: 14px;
-}
-
-.logout-btn {
-  margin-left: 10px;
-}
-
-/* Hero */
-.hero {
-  text-align: center;
-  padding: 40px 20px 20px;
-}
-
-.hero h1 {
-  font-size: 42px;
-  margin: 0;
-  letter-spacing: 2px;
-}
-
-.hero p {
-  font-family: Arial;
-  font-size: 15px;
-  color: #666;
-}
-
-/* Stats */
-.stats {
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  margin: 25px;
-}
-
-.stat-card {
-  background: white;
-  width: 200px;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.05);
-}
-
-/* Grid */
-.main-grid {
-  display: flex;
-  gap: 30px;
-  padding: 30px 50px;
-}
-
-.card {
-  flex: 1;
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 35px rgba(0,0,0,0.12);
-}
-
-/* Form */
-input, select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-button {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
-  background: #222;
-  color: white;
-  cursor: pointer;
-}
-
-button:hover {
-  background: black;
-}
-
-/* Report List */
-.report-item {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  font-family: Arial;
-  font-size: 14px;
-  opacity: 0;
-  transform: translateY(10px);
-  animation: slideUp 0.4s ease forwards;
-}
-
-@keyframes slideUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  /* Minimal & Modern Corporate Aesthetic */
+  :root {
+    --bg-color: #f7f9fa;
+    --sidebar-bg: #ffffff;
+    --text-main: #202124;
+    --text-muted: #5f6368;
+    --accent-color: #1a73e8; 
+    --card-bg: #ffffff;
+    --border-radius: 16px;
+    --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.03);
+    --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
   }
-}
 
-/* Status dots */
-.status-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 8px;
-  animation: pulse 1.5s infinite;
-}
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-.pending-dot { background: red; }
-.resolved-dot { background: green; }
-.inprogress-dot { background: orange; }
+  /* Sidebar Navigation */
+  .sidebar {
+    width: 260px;
+    background: var(--sidebar-bg);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #eaeaea;
+    z-index: 10;
+  }
 
-@keyframes pulse {
-  0% { box-shadow: 0 0 0px currentColor; }
-  50% { box-shadow: 0 0 12px currentColor; }
-  100% { box-shadow: 0 0 0px currentColor; }
-}
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 50px;
+    padding-left: 10px;
+  }
+
+  .logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .nav-item {
+    padding: 14px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .nav-item:hover {
+    background: #f1f3f4;
+    color: var(--text-main);
+  }
+
+  .nav-item.active {
+    background: #e8f0fe;
+    color: var(--accent-color);
+    font-weight: 600;
+  }
+
+  .logout-btn {
+    padding: 14px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #d93025;
+    background: #fce8e6;
+    border: none;
+    text-align: left;
+    transition: 0.2s;
+  }
+
+  .logout-btn:hover {
+    background: #fad2cf;
+  }
+
+  /* Main Content Area */
+  .main-content {
+    flex: 1;
+    padding: 40px 50px;
+    overflow-y: auto;
+  }
+
+  .top-header {
+    margin-bottom: 40px;
+  }
+
+  .top-header h1 {
+    font-size: 32px;
+    margin: 0 0 8px 0;
+    letter-spacing: -1px;
+  }
+
+  .top-header p {
+    color: var(--text-muted);
+    margin: 0;
+    font-size: 16px;
+  }
+
+  /* View Containers (For SPA Tab Switching) */
+  .view-section {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .view-section.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Grid Layouts */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 30px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-subtle);
+    border: 1px solid #f0f0f0;
+    transition: 0.3s;
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  .stat-title {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-size: 42px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  /* Forms & Inputs */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  input, select {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: 0.2s;
+    background: #fafafa;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+  }
+
+  button.btn-primary {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    background: var(--text-main);
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+  }
+
+  button.btn-primary:hover {
+    background: black;
+  }
+
+  button.btn-secondary {
+    padding: 12px 18px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    color: var(--text-main);
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  /* Report List */
+  .report-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .report-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #f0f0f0;
+  }
+
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .status-pending { background: #fef0f0; color: #d93025; }
+  .status-resolved { background: #e6f4ea; color: #1e8e3e; }
+  .status-inprogress { background: #fef7e0; color: #f9ab00; }
+
 </style>
 </head>
-
 <body>
 
-<div class="navbar">
-  <div class="logo-area">
-    <img src="logo.png">
-    <div>
+  <div class="sidebar">
+    <div class="logo-area">
       <div class="logo-text">FixMyCity</div>
-      <div class="logo-slogan">SEE IT. SNAP IT. FIX IT.</div>
     </div>
-  </div>
-  <div class="system-area">
-    ● System Online
+
+    <div class="nav-menu">
+      <div class="nav-item active" onclick="switchTab('overview')">Overview</div>
+      <div class="nav-item" onclick="switchTab('report')">Submit Issue</div>
+      <div class="nav-item" onclick="switchTab('map')">Live Map</div>
+      <div class="nav-item" onclick="switchTab('transparency')">Contractor Scores</div>
+    </div>
+
     <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
-</div>
 
-<div class="hero">
-  <h1>REPORT. TRACK. FIX.</h1>
-  <p>AI-powered civic infrastructure reporting platform.</p>
-</div>
+  <div class="main-content">
+    
+    <div id="overview" class="view-section active">
+      <div class="top-header">
+        <h1 id="welcomeUser">Welcome back</h1>
+        <p>Here is the current infrastructure status in your area.</p>
+      </div>
 
-<div class="stats">
-  <div class="stat-card">
-    <h2 id="totalReports">0</h2>
-    <div>Total Reports</div>
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="stat-title">Total Reports</div>
+          <div class="stat-value" id="totalReports">0</div>
+        </div>
+        <div class="card">
+          <div class="stat-title">Pending Action</div>
+          <div class="stat-value" id="pendingReports" style="color: #d93025;">0</div>
+        </div>
+        <div class="card">
+          <div class="stat-title">Successfully Resolved</div>
+          <div class="stat-value" id="resolvedReports" style="color: #1e8e3e;">0</div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+        <div class="card">
+          <h3 style="margin-top:0; font-weight: 600;">Issues by Type</h3>
+          <canvas id="issueChart" height="250"></canvas>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0; font-weight: 600;">Recent Community Reports</h3>
+          <div class="report-feed" id="reportsList" style="max-height: 300px; overflow-y: auto;">
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="report" class="view-section">
+      <div class="top-header">
+        <h1>Submit an Issue</h1>
+        <p>Upload a photo and let our AI verify the civic infrastructure problem.</p>
+      </div>
+
+      <div class="card" style="max-width: 600px;">
+        <form id="complaintForm" enctype="multipart/form-data">
+          
+          <div class="form-group">
+            <label>Evidence (Upload Photo)</label>
+            <input type="file" name="image" required>
+          </div>
+
+          <div class="form-group" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label>Latitude</label>
+              <input type="text" name="latitude" id="latInput" required readonly>
+            </div>
+            <div style="flex: 1;">
+              <label>Longitude</label>
+              <input type="text" name="longitude" id="lngInput" required readonly>
+            </div>
+          </div>
+          <button type="button" class="btn-secondary" onclick="getLocation()" style="margin-bottom: 20px; width: 100%;">📍 Auto-Detect My Coordinates</button>
+
+          <div class="form-group">
+            <label>Location/Area Name</label>
+            <input type="text" name="areaName" placeholder="e.g. Main Street, Near Central Station" required>
+          </div>
+
+          <div class="form-group" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label>Issue Type</label>
+              <select name="damageType" required>
+                <option value="">Select Category...</option>
+                <option>Pothole</option>
+                <option>Bridge Crack</option>
+                <option>Drainage Block</option>
+                <option>Broken Streetlight</option>
+              </select>
+            </div>
+            <div style="flex: 1;">
+              <label>Severity</label>
+              <select name="severity" required>
+                <option value="">Select Level...</option>
+                <option>Low - Minor inconvenience</option>
+                <option>Medium - Needs attention</option>
+                <option>High - Public safety risk</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">Submit Report to Authorities</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="map" class="view-section">
+      <div class="top-header">
+        <h1>Live Infrastructure Map</h1>
+        <p>Transparency view: See exactly where civic issues are clustered across the city.</p>
+      </div>
+      <div class="card" style="padding: 0; overflow: hidden; height: 500px;">
+        <div id="cityMap" style="height: 100%; width: 100%; z-index: 1;"></div>
+      </div>
+    </div>
+
+    <div id="transparency" class="view-section">
+      <div class="top-header">
+        <h1>Contractor Accountability</h1>
+        <p>Public ledger of municipal contractors and their current resolution scores.</p>
+      </div>
+      <div class="card">
+        <div class="report-item">
+          <div>
+            <strong style="font-size: 18px;">ABC Infra Pvt Ltd</strong>
+            <div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Assigned Area: North District</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 24px; font-weight: bold; color: #1e8e3e;">92%</div>
+            <div style="color: var(--text-muted); font-size: 12px;">Resolution Rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
-  <div class="stat-card">
-    <h2 id="pendingReports">0</h2>
-    <div>Pending</div>
-  </div>
-  <div class="stat-card">
-    <h2 id="resolvedReports">0</h2>
-    <div>Resolved</div>
-  </div>
-</div>
-
-<div class="main-grid">
-
-  <div class="card">
-    <h3>Submit Report</h3>
-    <form id="complaintForm" enctype="multipart/form-data">
-      <input type="file" name="image" required>
-      <input type="text" name="latitude" placeholder="Latitude" required>
-      <input type="text" name="longitude" placeholder="Longitude" required>
-      <button type="button" onclick="getLocation()">Auto Detect Location</button>
-      <input type="text" name="areaName" placeholder="Area Name" required>
-
-      <select name="damageType" required>
-        <option value="">Select Damage Type</option>
-        <option>Pothole</option>
-        <option>Bridge Crack</option>
-        <option>Drainage Block</option>
-      </select>
-
-      <select name="severity" required>
-        <option value="">Select Severity</option>
-        <option>Low</option>
-        <option>Medium</option>
-        <option>High</option>
-      </select>
-
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-
-  <div class="card">
-    <h3>Live Reports</h3>
-    <div id="reportsList"></div>
-  </div>
-
-</div>
 
 <script>
-if (!localStorage.getItem("user")) {
-  window.location.href = "login.html";
-}
-
-function logout() {
-  localStorage.removeItem("user");
-  window.location.href = "login.html";
-}
-
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      function(position) {
-        document.querySelector("input[name='latitude']").value =
-          position.coords.latitude;
-
-        document.querySelector("input[name='longitude']").value =
-          position.coords.longitude;
-      },
-      function() {
-        alert("Location permission denied.");
-      }
-    );
+  // Auth Check
+  const userData = JSON.parse(localStorage.getItem("user"));
+  if (!userData) {
+    window.location.href = "login.html";
+  } else {
+    document.getElementById("welcomeUser").innerText = `Welcome back, ${userData.name.split(' ')[0]}`;
   }
-}
 
-const form = document.getElementById("complaintForm");
-const reportsList = document.getElementById("reportsList");
+  function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "login.html";
+  }
 
-function animateCounter(id, endValue) {
-  const element = document.getElementById(id);
-  let start = 0;
-  const duration = 600;
-  const increment = endValue / (duration / 20);
+  // SPA Tab Switching Logic
+  function switchTab(tabId) {
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
 
-  const counter = setInterval(() => {
-    start += increment;
-    if (start >= endValue) {
-      element.textContent = endValue;
-      clearInterval(counter);
-    } else {
-      element.textContent = Math.floor(start);
+    // Fix map rendering issue when switching tabs
+    if (tabId === 'map') {
+      setTimeout(() => { map.invalidateSize(); }, 100);
     }
-  }, 20);
-}
+  }
 
-async function loadComplaints() {
-  const res = await fetch("http://localhost:5000/complaint");
-  const data = await res.json();
+  // Geolocation
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          document.getElementById("latInput").value = position.coords.latitude;
+          document.getElementById("lngInput").value = position.coords.longitude;
+        },
+        function() { alert("Location permission denied. Please allow location access."); }
+      );
+    }
+  }
 
-  reportsList.innerHTML = "";
-
-  data.forEach(c => {
-    let dotClass = "pending-dot";
-    if (c.status === "Resolved") dotClass = "resolved-dot";
-    if (c.status === "InProgress") dotClass = "inprogress-dot";
-
-    reportsList.innerHTML += `
-      <div class="report-item">
-        <span class="status-dot ${dotClass}"></span>
-        <strong>${c.damageType}</strong> - ${c.areaName}
-        <span style="float:right">${c.status || "Pending"}</span>
-      </div>
-    `;
+  // --- Initialize Analytics Chart ---
+  const ctx = document.getElementById('issueChart').getContext('2d');
+  const issueChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Potholes', 'Bridge Cracks', 'Drainage', 'Streetlights'],
+      datasets: [{
+        data: [0, 0, 0, 0], 
+        backgroundColor: ['#1a73e8', '#ea4335', '#34a853', '#fbbc04'],
+        borderWidth: 0
+      }]
+    },
+    options: { responsive: true, cutout: '75%' }
   });
 
-  animateCounter("totalReports", data.length);
-  animateCounter("pendingReports",
-    data.filter(c => c.status !== "Resolved").length);
-  animateCounter("resolvedReports",
-    data.filter(c => c.status === "Resolved").length);
-}
+  // --- Initialize Live Map ---
+  const map = L.map('cityMap').setView([26.8467, 80.9462], 12); 
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const formData = new FormData(form);
+  // Create a layer group to hold our dynamic markers so we can clear them on refresh
+  const markerGroup = L.layerGroup().addTo(map);
 
-  await fetch("http://localhost:5000/complaint", {
-    method: "POST",
-    body: formData
+  // Fetch and Load Complaints
+  const form = document.getElementById("complaintForm");
+  const reportsList = document.getElementById("reportsList");
+
+  async function loadComplaints() {
+    try {
+      const res = await fetch("http://localhost:5000/complaint");
+      const data = await res.json();
+
+      // 1. Clear old data
+      reportsList.innerHTML = "";
+      markerGroup.clearLayers(); 
+
+      // Variables to track chart data
+      let typeCounts = { 'Pothole': 0, 'Bridge Crack': 0, 'Drainage Block': 0, 'Broken Streetlight': 0 };
+
+      // 2. Loop through database and populate dashboard
+      data.reverse().forEach(c => { 
+        let badgeClass = "status-pending";
+        let statusText = "Pending";
+        
+        if (c.status === "Resolved") { badgeClass = "status-resolved"; statusText = "Resolved"; }
+        if (c.status === "InProgress") { badgeClass = "status-inprogress"; statusText = "In Progress"; }
+
+        // Add to Feed
+        reportsList.innerHTML += `
+          <div class="report-item">
+            <div>
+              <strong style="font-size: 16px;">${c.damageType}</strong> <span style="color: #9aa0a6;">• ${c.severity} Severity</span>
+              <div style="color: #5f6368; font-size: 14px; margin-top: 6px;">📍 ${c.areaName}</div>
+            </div>
+            <div>
+              <span class="status-badge ${badgeClass}">${statusText}</span>
+            </div>
+          </div>
+        `;
+
+        // Add to Map
+        // Add to Map
+        if (c.latitude && c.longitude) {
+          // Custom Map Pin using Emoji
+          const mapIcon = L.divIcon({
+            className: 'custom-icon',
+            html: `<div style="font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.2));">📍</div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 30]
+          });
+
+          // 1. Handle the uploaded image (fixing Windows file paths if needed)
+          let imgHtml = '';
+          if (c.imageUrl) {
+            let safeImgPath = c.imageUrl.replace(/\\\\/g, '/').replace(/\\/g, '/');
+            imgHtml = `<img src="http://localhost:5000/${safeImgPath}" style="width:100%; height:130px; object-fit:cover; border-radius:8px; margin-bottom:10px; border:1px solid #eaeaea;" alt="Evidence">`;
+          }
+
+          // 2. Build the advanced popup HTML
+          let popupHtml = `
+            <div style="min-width: 240px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+              ${imgHtml}
+              <strong style="font-size:16px; display:block; margin-bottom:4px; color:#202124;">${c.damageType}</strong>
+              <span style="color:#5f6368; font-size:13px; display:block; margin-bottom:2px;">📍 ${c.areaName}</span>
+              <span style="color:#5f6368; font-size:13px; display:block; margin-bottom:10px;">⚠️ Severity: ${c.severity}</span>
+              
+              <div style="background:#f8f9fa; padding:10px; border-radius:6px; font-size:12px; color:#3c4043; margin-bottom:10px; border-left: 3px solid var(--accent-color, #1a73e8);">
+                <em>"${c.complaintText || 'No description provided.'}"</em>
+              </div>
+
+              <span style="color:#1a73e8; font-size:13px; display:block; font-weight:600; margin-bottom:10px;">🏢 Authority: ${c.contractorName || 'Unassigned'}</span>
+              
+              <span style="font-weight:bold; font-size:12px; display:inline-block; padding:4px 10px; border-radius:12px; background:${c.status === 'Resolved' ? '#e6f4ea' : '#fef0f0'}; color:${c.status === 'Resolved' ? '#1e8e3e' : '#d93025'};">${statusText}</span>
+            </div>
+          `;
+
+          // 3. Bind the advanced popup to the marker
+          L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup)
+            .bindPopup(popupHtml);
+        }
+
+        // Count for Chart
+        if (typeCounts[c.damageType] !== undefined) {
+          typeCounts[c.damageType]++;
+        }
+      });
+
+      // 3. Update Stats
+      document.getElementById("totalReports").innerText = data.length;
+      document.getElementById("pendingReports").innerText = data.filter(c => c.status !== "Resolved").length;
+      document.getElementById("resolvedReports").innerText = data.filter(c => c.status === "Resolved").length;
+
+      // 4. Update Chart dynamically
+      issueChart.data.datasets[0].data = [
+        typeCounts['Pothole'], 
+        typeCounts['Bridge Crack'], 
+        typeCounts['Drainage Block'], 
+        typeCounts['Broken Streetlight']
+      ];
+      issueChart.update();
+
+    } catch (error) {
+      console.log("Error loading complaints:", error);
+    }
+  }
+
+  // Handle Form Submission
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.innerText = "Submitting...";
+
+    try {
+      await fetch("http://localhost:5000/complaint", {
+        method: "POST",
+        body: formData
+      });
+      form.reset();
+      loadComplaints();
+      switchTab('overview');
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelector('.nav-item').classList.add('active'); 
+      submitBtn.innerText = "Submit Report to Authorities";
+    } catch (error) {
+      console.error(error);
+      submitBtn.innerText = "Error - Try Again";
+    }
   });
 
-  form.reset();
+  // Initial Load
   loadComplaints();
-});
-
-loadComplaints();
 </script>
-
 </body>
 </html>

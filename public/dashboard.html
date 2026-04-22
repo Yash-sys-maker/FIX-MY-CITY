@@ -72,10 +72,45 @@
   
   .proof-images { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;}
   .proof-images img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #eaeaea; }
+
+  /* AI Processing Overlay */
+  .processing-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; color: white; font-family: monospace; }
+  .processing-box { background: #1a1a1a; padding: 40px; border-radius: 12px; border: 1px solid #333; width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+  .processing-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: var(--accent-color); border-bottom: 1px solid #333; padding-bottom: 10px;}
+  .step-row { margin-bottom: 15px; font-size: 14px; color: #888; display: flex; justify-content: space-between;}
+  .step-row.active { color: white; }
+  .step-row.success { color: #34a853; }
+  .step-row.warning { color: #fbbc04; }
+  .step-row.error { color: #ea4335; }
+  .score-display { font-size: 32px; font-weight: bold; text-align: center; margin: 20px 0; color: #fff; }
+  .close-overlay-btn { display: none; width: 100%; padding: 12px; background: #333; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 20px; font-family: inherit;}
+  .close-overlay-btn:hover { background: #444; }
 </style>
 </head>
 <body>
+<div class="processing-overlay" id="processingOverlay">
+    <div class="processing-box">
+      <div class="processing-title">⚙️ SYSTEM VERIFICATION ROUTINE</div>
+      
+      <div class="step-row" id="step1">
+        <span>[1] Initiating AI Vision Analysis...</span>
+        <span id="step1-status">Waiting</span>
+      </div>
+      
+      <div class="score-display" id="scoreDisplay">--%</div>
+      
+      <div class="step-row" id="step2">
+        <span>[2] Cross-Referencing 50m Geo-Fence...</span>
+        <span id="step2-status">Waiting</span>
+      </div>
 
+      <div class="step-row" id="finalResult" style="margin-top: 30px; font-weight: bold; font-size: 16px; display: none;">
+        <span id="finalMessage">Result...</span>
+      </div>
+
+      <button class="close-overlay-btn" id="closeOverlayBtn" onclick="closeOverlay()">Acknowledge & Continue</button>
+    </div>
+  </div>
   <div class="top-navbar">
     <div class="notification-bell" onclick="toggleNotifs()">
       🔔 <span id="notifCount" class="badge" style="display:none;">0</span>
@@ -220,7 +255,7 @@
   async function simulateFix(id) {
     try {
       await fetch(`http://localhost:5000/complaint/${id}/simulate-resolve`, { method: "PATCH" });
-      loadComplaints(); // Reload everything to show the new resolved state
+      loadComplaints(); 
     } catch (e) { console.error("Simulate failed", e); }
   }
 
@@ -271,11 +306,9 @@
         let imgHtml = c.imageUrl ? `<img src="http://localhost:5000/uploads/${c.imageUrl.split(/[\\/]/).pop()}" alt="Evidence" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">` : '';
 
         // 1. POPULATE COMMUNITY FEED
-        // Format the Date beautifully for the feed
         let dateObj = new Date(c.createdAt);
         let formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
 
-        // 1. POPULATE COMMUNITY FEED (Restored Rich Layout)
         document.getElementById("reportsList").innerHTML += `
           <div class="report-item" id="feed-item-${c._id}">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -315,7 +348,6 @@
             </div>
           `;
         } else {
-          // It IS resolved. Did they rate it yet?
           if(!c.rating) {
             notifCount++;
             document.getElementById("notifList").innerHTML += `<div class="notif-item" onclick="switchTab('tracking')">✅ <strong>${c.damageType}</strong> at ${c.areaName} was resolved! Please verify and rate the contractor.</div>`;
@@ -348,7 +380,6 @@
               </div>
             `;
           } else {
-            // Already rated!
             totalRatings += c.rating; ratedItems++;
             document.getElementById("trackingList").innerHTML += `
               <div class="card" style="opacity: 0.8;">
@@ -362,7 +393,6 @@
           }
         }
 
-        // Map and Chart prep
         if (c.latitude && c.longitude) {
           const mapIcon = L.divIcon({ className: 'custom-icon', html: `<div style="font-size: 28px;">📍</div>`, iconSize: [30, 30] });
           L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup).bindPopup(`<strong>${c.damageType}</strong><br>📍 ${c.areaName}<br><button onclick="viewInFeed('${c._id}')" style="margin-top:5px; cursor:pointer;">View Feed</button>`);
@@ -370,12 +400,10 @@
         if (typeCounts[c.damageType] !== undefined) typeCounts[c.damageType]++;
       });
 
-      // Update Notifications UI
       const badge = document.getElementById("notifCount");
       if(notifCount > 0) { badge.style.display = "flex"; badge.innerText = notifCount; } 
       else { badge.style.display = "none"; document.getElementById("notifList").innerHTML = "No new alerts.";}
 
-      // Update Contractor Reputation Score Dynamically
       if(ratedItems > 0) {
         let avgScore = ((totalRatings / (ratedItems * 5)) * 100).toFixed(0);
         document.getElementById("contractorScore").innerText = `${avgScore}%`;
@@ -391,10 +419,106 @@
     } catch (error) { console.log(error); }
   }
 
+  // --- NEW: The AI Verification Magic Show Logic ---
+  function animateScore(targetScore) {
+    let current = 0;
+    const scoreEl = document.getElementById("scoreDisplay");
+    const interval = setInterval(() => {
+      current += 2;
+      if (current >= targetScore) {
+        scoreEl.innerText = targetScore + "% Confidence";
+        clearInterval(interval);
+      } else {
+        scoreEl.innerText = current + "%";
+      }
+    }, 20);
+  }
+
+  function closeOverlay() {
+    document.getElementById("processingOverlay").style.display = "none";
+    document.getElementById("closeOverlayBtn").style.display = "none";
+    switchTab('overview');
+  }
+
   document.getElementById("complaintForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    await fetch("http://localhost:5000/complaint", { method: "POST", body: new FormData(e.target) });
-    e.target.reset(); loadComplaints(); switchTab('overview');
+    const formElement = e.target;
+    const formData = new FormData(formElement);
+    
+    // 1. Show the overlay
+    document.getElementById("processingOverlay").style.display = "flex";
+    
+    // Reset UI
+    document.getElementById("step1").className = "step-row active";
+    document.getElementById("step1-status").innerText = "Analyzing";
+    document.getElementById("step2").className = "step-row";
+    document.getElementById("step2-status").innerText = "Waiting";
+    document.getElementById("finalResult").style.display = "none";
+    document.getElementById("scoreDisplay").innerText = "0%";
+    document.getElementById("scoreDisplay").style.color = "white";
+
+    try {
+      // Watch the "Analyzing" state
+      await new Promise(r => setTimeout(r, 1200));
+
+      const res = await fetch("http://localhost:5000/complaint", { method: "POST", body: formData });
+      const result = await res.json();
+
+      // 2. Animate the AI Score
+      document.getElementById("step1").className = "step-row success";
+      document.getElementById("step1-status").innerText = "Complete";
+      animateScore(result.confidenceScore);
+      
+      // Watch score
+      await new Promise(r => setTimeout(r, 1500));
+
+      // 3. Animate the Geo-Fence Scan
+      document.getElementById("step2").className = "step-row active";
+      document.getElementById("step2-status").innerText = "Scanning...";
+      
+      await new Promise(r => setTimeout(r, 1200));
+
+      // 4. Show the Final Result based on the backend simulation
+      const finalRow = document.getElementById("finalResult");
+      const finalMsg = document.getElementById("finalMessage");
+      const scoreEl = document.getElementById("scoreDisplay");
+      
+      finalRow.style.display = "flex";
+      finalMsg.innerText = result.message;
+
+      if (result.status === "duplicate") {
+        document.getElementById("step2").className = "step-row warning";
+        document.getElementById("step2-status").innerText = "Match Found";
+        finalRow.className = "step-row warning";
+      } else if (result.status === "rejected") {
+        document.getElementById("step2").className = "step-row error";
+        document.getElementById("step2-status").innerText = "Aborted";
+        scoreEl.style.color = "#ea4335";
+        finalRow.className = "step-row error";
+      } else if (result.status === "review") {
+        document.getElementById("step2").className = "step-row success";
+        document.getElementById("step2-status").innerText = "Clear";
+        scoreEl.style.color = "#fbbc04";
+        finalRow.className = "step-row warning";
+      } else {
+        document.getElementById("step2").className = "step-row success";
+        document.getElementById("step2-status").innerText = "Clear";
+        scoreEl.style.color = "#34a853";
+        finalRow.className = "step-row success";
+      }
+
+      // Show close button
+      document.getElementById("closeOverlayBtn").style.display = "block";
+      
+      // Reload data
+      formElement.reset(); 
+      loadComplaints();
+
+    } catch (error) { 
+      console.error(error); 
+      alert("System Error. Please try again.");
+      closeOverlay();
+    }
   });
 
   loadComplaints();

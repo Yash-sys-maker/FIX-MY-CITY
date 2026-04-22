@@ -22,15 +22,7 @@
     --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
   }
 
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-  }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
   .sidebar { width: 260px; background: var(--sidebar-bg); padding: 30px 20px; display: flex; flex-direction: column; border-right: 1px solid #eaeaea; z-index: 10; }
   .logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 50px; padding-left: 10px; }
@@ -67,7 +59,7 @@
   button.btn-secondary { padding: 12px 18px; border: 1px solid #ddd; border-radius: 8px; background: white; color: var(--text-main); font-size: 14px; cursor: pointer; margin-top: 10px; }
 
   .report-feed { display: flex; flex-direction: column; gap: 16px; }
-  .report-item { display: flex; flex-direction: column; gap: 14px; padding: 20px; background: white; border-radius: 12px; border: 1px solid #f0f0f0; }
+  .report-item { display: flex; flex-direction: column; gap: 14px; padding: 20px; background: white; border-radius: 12px; border: 1px solid #f0f0f0; transition: all 0.5s ease; }
   
   .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-align: center; display: inline-block;}
   .status-pending { background: #fef0f0; color: #d93025; }
@@ -77,6 +69,13 @@
   .upvote-btn { background: #f1f3f4; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #5f6368; transition: 0.2s; display: flex; align-items: center; gap: 6px; font-size: 14px;}
   .upvote-btn:hover { background: #e8f0fe; color: var(--accent-color); }
   .upvote-btn.voted { background: #e8f0fe; color: var(--accent-color); cursor: default;}
+
+  /* Highlight Animation for Feed Routing */
+  .highlight-pulse {
+    box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.3) !important;
+    border-color: var(--accent-color) !important;
+    transform: scale(1.02);
+  }
 </style>
 </head>
 <body>
@@ -125,7 +124,7 @@
 
         <div class="card">
           <h3 style="margin-top:0; font-weight: 600;">Community Feed</h3>
-          <div class="report-feed" id="reportsList" style="max-height: 450px; overflow-y: auto; padding-right: 10px;">
+          <div class="report-feed" id="reportsList" style="max-height: 450px; overflow-y: auto; padding-right: 10px; scroll-behavior: smooth;">
           </div>
         </div>
       </div>
@@ -196,8 +195,35 @@
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+    
+    // Find the matching nav item and highlight it
+    document.querySelectorAll('.nav-item').forEach(el => {
+      if(el.getAttribute('onclick').includes(tabId)) el.classList.add('active');
+    });
+
     if (tabId === 'map') { setTimeout(() => { map.invalidateSize(); }, 100); }
+  }
+
+  // --- Map to Feed Cross-Navigation ---
+  function viewInFeed(reportId) {
+    switchTab('overview'); // Kick user back to overview tab
+    
+    // Slight delay to allow the tab display to render before calculating scroll position
+    setTimeout(() => {
+      const feedItem = document.getElementById(`feed-item-${reportId}`);
+      if (feedItem) {
+        // Scroll to the item inside the feed container
+        feedItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Add highlight pulse
+        feedItem.classList.add('highlight-pulse');
+        
+        // Remove highlight after 2.5 seconds
+        setTimeout(() => {
+          feedItem.classList.remove('highlight-pulse');
+        }, 2500);
+      }
+    }, 150);
   }
 
   function getLocation() {
@@ -212,23 +238,17 @@
     }
   }
 
-  // --- Upvote Function ---
   async function upvoteIssue(id, btnElement) {
-    // Prevent double clicking
     if (btnElement.classList.contains('voted')) return;
-
     try {
       const res = await fetch(`http://localhost:5000/complaint/${id}/upvote`, { method: "PATCH" });
       if (res.ok) {
         const updatedData = await res.json();
-        // Update UI instantly
         btnElement.querySelector('.vote-count').innerText = updatedData.upvotes;
         btnElement.classList.add('voted');
         btnElement.innerHTML = `✅ <span class="vote-count">${updatedData.upvotes}</span>`;
       }
-    } catch (error) {
-      console.error("Failed to upvote:", error);
-    }
+    } catch (error) { console.error("Failed to upvote:", error); }
   }
 
   const ctx = document.getElementById('issueChart').getContext('2d');
@@ -236,11 +256,7 @@
     type: 'doughnut',
     data: {
       labels: ['Potholes', 'Bridge Cracks', 'Drainage', 'Streetlights'],
-      datasets: [{
-        data: [0, 0, 0, 0], 
-        backgroundColor: ['#1a73e8', '#ea4335', '#34a853', '#fbbc04'],
-        borderWidth: 0
-      }]
+      datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#1a73e8', '#ea4335', '#34a853', '#fbbc04'], borderWidth: 0 }]
     },
     options: { responsive: true, cutout: '75%' }
   });
@@ -262,7 +278,6 @@
 
       let typeCounts = { 'Pothole': 0, 'Bridge Crack': 0, 'Drainage Block': 0, 'Broken Streetlight': 0 };
 
-      // Sort data by newest first, but prioritize ones with highest upvotes!
       data.sort((a, b) => b.upvotes - a.upvotes || new Date(b.createdAt) - new Date(a.createdAt));
 
       data.forEach(c => { 
@@ -272,13 +287,18 @@
         if (c.status === "Resolved") { badgeClass = "status-resolved"; statusText = "Resolved"; }
         if (c.status === "InProgress") { badgeClass = "status-inprogress"; statusText = "In Progress"; }
 
-        // --- NEW COMMUNITY FEED CARD ---
+        // Format the Date beautifully
+        let dateObj = new Date(c.createdAt);
+        let formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+
+        // Added ID for scrolling: id="feed-item-${c._id}"
         reportsList.innerHTML += `
-          <div class="report-item">
+          <div class="report-item" id="feed-item-${c._id}">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
               <div>
                 <strong style="font-size: 16px; display:block;">${c.damageType}</strong>
                 <span style="color: #9aa0a6; font-size: 13px;">${c.severity || 'Not Specified'} Severity • 📍 ${c.areaName}</span>
+                <span style="color: #9aa0a6; font-size: 11px; display:block; margin-top:2px;">🕒 Posted on ${formattedDate}</span>
               </div>
               <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                 <span class="status-badge ${badgeClass}">${statusText}</span>
@@ -293,7 +313,6 @@
                 <span style="flex:1;"><strong>Status Update:</strong> ${c.latestUpdate || 'Report logged.'}</span>
                 <span style="text-align:right;"><strong>Est. Start:</strong> ${c.estimatedStartDate || 'TBD'}</span>
               </div>
-              
               <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
                 <div style="width: ${c.progressPercentage || 0}%; background: var(--accent-color); height: 100%; transition: width 0.5s ease;"></div>
               </div>
@@ -302,7 +321,7 @@
           </div>
         `;
 
-        // Add to Map
+        // Add to Map with the New Button
         if (c.latitude && c.longitude) {
           const mapIcon = L.divIcon({ className: 'custom-icon', html: `<div style="font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.2));">📍</div>`, iconSize: [30, 30], iconAnchor: [15, 30] });
           let imgHtml = '';
@@ -313,7 +332,19 @@
           let displaySeverity = c.severity || 'Not Specified';
           let safeText = c.complaintText ? c.complaintText.replace('undefined ', '') : 'No description provided.';
           
-          let popupHtml = `<div style="min-width: 240px; font-family: sans-serif;">${imgHtml}<strong style="font-size:16px; display:block; margin-bottom:4px; color:#202124;">${c.damageType}</strong><span style="color:#5f6368; font-size:13px; display:block; margin-bottom:2px;">📍 ${c.areaName}</span><span style="color:#5f6368; font-size:13px; display:block; margin-bottom:10px;">⚠️ Severity: ${displaySeverity}</span><div style="background:#f8f9fa; padding:10px; border-radius:6px; font-size:12px; color:#3c4043; margin-bottom:10px; border-left: 3px solid var(--accent-color, #1a73e8);"><em>"${safeText}"</em></div><span style="color:#1a73e8; font-size:13px; display:block; font-weight:600; margin-bottom:10px;">🏢 Authority: ${c.contractorName || 'Unassigned'}</span><span style="font-weight:bold; font-size:12px; display:inline-block; padding:4px 10px; border-radius:12px; background:${c.status === 'Resolved' ? '#e6f4ea' : '#fef0f0'}; color:${c.status === 'Resolved' ? '#1e8e3e' : '#d93025'};">${statusText}</span></div>`;
+          let popupHtml = `
+            <div style="min-width: 240px; font-family: sans-serif;">
+              ${imgHtml}
+              <strong style="font-size:16px; display:block; margin-bottom:4px; color:#202124;">${c.damageType}</strong>
+              <span style="color:#5f6368; font-size:13px; display:block; margin-bottom:2px;">📍 ${c.areaName}</span>
+              <span style="color:#5f6368; font-size:13px; display:block; margin-bottom:10px;">⚠️ Severity: ${displaySeverity}</span>
+              <div style="background:#f8f9fa; padding:10px; border-radius:6px; font-size:12px; color:#3c4043; margin-bottom:10px; border-left: 3px solid var(--accent-color, #1a73e8);"><em>"${safeText}"</em></div>
+              <span style="color:#1a73e8; font-size:13px; display:block; font-weight:600; margin-bottom:10px;">🏢 Authority: ${c.contractorName || 'Unassigned'}</span>
+              
+              <button onclick="viewInFeed('${c._id}')" style="width: 100%; margin-top: 5px; padding: 10px; background: white; border: 1px solid var(--accent-color); color: var(--accent-color); border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                View in Community Feed 💬
+              </button>
+            </div>`;
           L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup).bindPopup(popupHtml);
         }
 
@@ -340,8 +371,6 @@
       form.reset();
       loadComplaints();
       switchTab('overview');
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      document.querySelector('.nav-item').classList.add('active'); 
       submitBtn.innerText = "Submit Report to Authorities";
     } catch (error) { console.error(error); submitBtn.innerText = "Error - Try Again"; }
   });

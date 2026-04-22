@@ -10,18 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-  :root {
-    --bg-color: #f7f9fa;
-    --sidebar-bg: #ffffff;
-    --text-main: #202124;
-    --text-muted: #5f6368;
-    --accent-color: #1a73e8; 
-    --card-bg: #ffffff;
-    --border-radius: 16px;
-    --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.03);
-    --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
-  }
-
+  :root { --bg-color: #f7f9fa; --sidebar-bg: #ffffff; --text-main: #202124; --text-muted: #5f6368; --accent-color: #1a73e8; --card-bg: #ffffff; --border-radius: 16px; --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.03); --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08); }
   body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
   .sidebar { width: 260px; background: var(--sidebar-bg); padding: 30px 20px; display: flex; flex-direction: column; border-right: 1px solid #eaeaea; z-index: 10; }
@@ -32,9 +21,18 @@
   .nav-item:hover { background: #f1f3f4; color: var(--text-main); }
   .nav-item.active { background: #e8f0fe; color: var(--accent-color); font-weight: 600; }
   .logout-btn { padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 500; color: #d93025; background: #fce8e6; border: none; text-align: left; transition: 0.2s; }
-  .logout-btn:hover { background: #fad2cf; }
 
-  .main-content { flex: 1; padding: 40px 50px; overflow-y: auto; }
+  /* Navbar & Notifications */
+  .top-navbar { position: absolute; top: 20px; right: 50px; display: flex; align-items: center; gap: 20px; z-index: 100; }
+  .notification-bell { position: relative; cursor: pointer; font-size: 24px; padding: 10px; background: white; border-radius: 50%; box-shadow: var(--shadow-subtle); transition: 0.2s; }
+  .notification-bell:hover { transform: scale(1.05); }
+  .badge { position: absolute; top: 0; right: 0; background: #ea4335; color: white; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
+  .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 300px; background: white; border-radius: 12px; box-shadow: var(--shadow-hover); padding: 15px; border: 1px solid #eaeaea; max-height: 300px; overflow-y: auto; }
+  .notif-dropdown.show { display: block; animation: fadeIn 0.2s ease; }
+  .notif-item { padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; cursor: pointer; border-radius: 6px;}
+  .notif-item:hover { background: #f8f9fa; }
+
+  .main-content { flex: 1; padding: 40px 50px; overflow-y: auto; position: relative; padding-top: 80px;}
   .top-header { margin-bottom: 40px; }
   .top-header h1 { font-size: 32px; margin: 0 0 8px 0; letter-spacing: -1px; }
   .top-header p { color: var(--text-muted); margin: 0; font-size: 16px; }
@@ -44,41 +42,49 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
   .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 30px; }
-  .card { background: var(--card-bg); padding: 24px; border-radius: var(--border-radius); box-shadow: var(--shadow-subtle); border: 1px solid #f0f0f0; transition: 0.3s; }
-  .card:hover { box-shadow: var(--shadow-hover); }
-  .stat-title { font-size: 14px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .card { background: var(--card-bg); padding: 24px; border-radius: var(--border-radius); box-shadow: var(--shadow-subtle); border: 1px solid #f0f0f0; }
+  .stat-title { font-size: 14px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 10px; }
   .stat-value { font-size: 42px; font-weight: 700; margin: 0; }
 
   .form-group { margin-bottom: 20px; }
   label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: var(--text-muted); }
-  input, select { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; box-sizing: border-box; transition: 0.2s; background: #fafafa; }
-  input:focus, select:focus { outline: none; border-color: var(--accent-color); background: white; box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); }
+  input, select, textarea { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; box-sizing: border-box; background: #fafafa; font-family: inherit;}
   
-  button.btn-primary { padding: 14px 24px; border: none; border-radius: 8px; background: var(--text-main); color: white; font-size: 16px; font-weight: 500; cursor: pointer; transition: 0.2s; width: 100%; }
-  button.btn-primary:hover { background: black; }
+  button.btn-primary { padding: 14px 24px; border: none; border-radius: 8px; background: var(--text-main); color: white; font-size: 16px; font-weight: 500; cursor: pointer; width: 100%; }
   button.btn-secondary { padding: 12px 18px; border: 1px solid #ddd; border-radius: 8px; background: white; color: var(--text-main); font-size: 14px; cursor: pointer; margin-top: 10px; }
 
   .report-feed { display: flex; flex-direction: column; gap: 16px; }
-  .report-item { display: flex; flex-direction: column; gap: 14px; padding: 20px; background: white; border-radius: 12px; border: 1px solid #f0f0f0; transition: all 0.5s ease; }
+  .report-item { display: flex; flex-direction: column; gap: 14px; padding: 20px; background: white; border-radius: 12px; border: 1px solid #f0f0f0; }
   
   .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-align: center; display: inline-block;}
   .status-pending { background: #fef0f0; color: #d93025; }
   .status-resolved { background: #e6f4ea; color: #1e8e3e; }
   .status-inprogress { background: #fef7e0; color: #f9ab00; }
 
-  .upvote-btn { background: #f1f3f4; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #5f6368; transition: 0.2s; display: flex; align-items: center; gap: 6px; font-size: 14px;}
-  .upvote-btn:hover { background: #e8f0fe; color: var(--accent-color); }
-  .upvote-btn.voted { background: #e8f0fe; color: var(--accent-color); cursor: default;}
+  .upvote-btn { background: #f1f3f4; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 6px; font-size: 14px;}
+  .upvote-btn.voted { background: #e8f0fe; color: var(--accent-color); }
 
-  /* Highlight Animation for Feed Routing */
-  .highlight-pulse {
-    box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.3) !important;
-    border-color: var(--accent-color) !important;
-    transform: scale(1.02);
-  }
+  /* Rating Stars CSS */
+  .star-rating { display: flex; gap: 5px; flex-direction: row-reverse; justify-content: flex-end; margin-bottom: 10px;}
+  .star-rating input { display: none; }
+  .star-rating label { font-size: 24px; color: #ccc; cursor: pointer; transition: 0.2s; }
+  .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbc04; }
+  
+  .proof-images { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;}
+  .proof-images img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #eaeaea; }
 </style>
 </head>
 <body>
+
+  <div class="top-navbar">
+    <div class="notification-bell" onclick="toggleNotifs()">
+      🔔 <span id="notifCount" class="badge" style="display:none;">0</span>
+      <div id="notifDropdown" class="notif-dropdown">
+        <strong style="display:block; margin-bottom:10px;">Alerts</strong>
+        <div id="notifList">No new notifications.</div>
+      </div>
+    </div>
+  </div>
 
   <div class="sidebar">
     <div class="logo-area">
@@ -88,6 +94,7 @@
       <div class="nav-item active" onclick="switchTab('overview')">Overview</div>
       <div class="nav-item" onclick="switchTab('report')">Submit Issue</div>
       <div class="nav-item" onclick="switchTab('map')">Live Map</div>
+      <div class="nav-item" onclick="switchTab('tracking')">Track & Rate</div>
       <div class="nav-item" onclick="switchTab('transparency')">Contractor Scores</div>
     </div>
     <button class="logout-btn" onclick="logout()">Logout</button>
@@ -100,41 +107,25 @@
         <h1 id="welcomeUser">Welcome back</h1>
         <p>Here is the current infrastructure status in your area.</p>
       </div>
-
       <div class="dashboard-grid">
-        <div class="card">
-          <div class="stat-title">Total Reports</div>
-          <div class="stat-value" id="totalReports">0</div>
-        </div>
-        <div class="card">
-          <div class="stat-title">Pending Action</div>
-          <div class="stat-value" id="pendingReports" style="color: #d93025;">0</div>
-        </div>
-        <div class="card">
-          <div class="stat-title">Successfully Resolved</div>
-          <div class="stat-value" id="resolvedReports" style="color: #1e8e3e;">0</div>
-        </div>
+        <div class="card"><div class="stat-title">Total Reports</div><div class="stat-value" id="totalReports">0</div></div>
+        <div class="card"><div class="stat-title">Pending Action</div><div class="stat-value" id="pendingReports" style="color: #d93025;">0</div></div>
+        <div class="card"><div class="stat-title">Successfully Resolved</div><div class="stat-value" id="resolvedReports" style="color: #1e8e3e;">0</div></div>
       </div>
-
       <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
         <div class="card">
           <h3 style="margin-top:0; font-weight: 600;">Issues by Type</h3>
           <canvas id="issueChart" height="250"></canvas>
         </div>
-
         <div class="card">
           <h3 style="margin-top:0; font-weight: 600;">Community Feed</h3>
-          <div class="report-feed" id="reportsList" style="max-height: 450px; overflow-y: auto; padding-right: 10px; scroll-behavior: smooth;">
-          </div>
+          <div class="report-feed" id="reportsList" style="max-height: 450px; overflow-y: auto; padding-right: 10px;"></div>
         </div>
       </div>
     </div>
 
     <div id="report" class="view-section">
-      <div class="top-header">
-        <h1>Submit an Issue</h1>
-        <p>Upload a photo and let our AI verify the civic infrastructure problem.</p>
-      </div>
+      <div class="top-header"><h1>Submit an Issue</h1><p>Upload a photo to report an infrastructure problem.</p></div>
       <div class="card" style="max-width: 600px;">
         <form id="complaintForm" enctype="multipart/form-data">
           <div class="form-group"><label>Evidence (Upload Photo)</label><input type="file" name="image" required></div>
@@ -143,41 +134,36 @@
             <div style="flex: 1;"><label>Longitude</label><input type="text" name="longitude" id="lngInput" required readonly></div>
           </div>
           <button type="button" class="btn-secondary" onclick="getLocation()" style="margin-bottom: 20px; width: 100%;">📍 Auto-Detect My Coordinates</button>
-          <div class="form-group"><label>Location/Area Name</label><input type="text" name="areaName" placeholder="e.g. Main Street, Near Central Station" required></div>
+          <div class="form-group"><label>Location/Area Name</label><input type="text" name="areaName" placeholder="e.g. Main Street" required></div>
           <div class="form-group" style="display: flex; gap: 15px;">
-            <div style="flex: 1;"><label>Issue Type</label><select name="damageType" required><option value="">Select Category...</option><option>Pothole</option><option>Bridge Crack</option><option>Drainage Block</option><option>Broken Streetlight</option></select></div>
-            <div style="flex: 1;"><label>Severity</label><select name="severity" required><option value="">Select Level...</option><option>Low - Minor inconvenience</option><option>Medium - Needs attention</option><option>High - Public safety risk</option></select></div>
+            <div style="flex: 1;"><label>Issue Type</label><select name="damageType" required><option value="">Select...</option><option>Pothole</option><option>Bridge Crack</option><option>Drainage Block</option><option>Broken Streetlight</option></select></div>
+            <div style="flex: 1;"><label>Severity</label><select name="severity" required><option value="">Select...</option><option>Low</option><option>Medium</option><option>High</option></select></div>
           </div>
-          <button type="submit" class="btn-primary">Submit Report to Authorities</button>
+          <button type="submit" class="btn-primary">Submit Report</button>
         </form>
       </div>
     </div>
 
     <div id="map" class="view-section">
+      <div class="top-header"><h1>Live Map</h1><p>See exactly where civic issues are clustered.</p></div>
+      <div class="card" style="padding: 0; overflow: hidden; height: 500px;"><div id="cityMap" style="height: 100%; width: 100%; z-index: 1;"></div></div>
+    </div>
+
+    <div id="tracking" class="view-section">
       <div class="top-header">
-        <h1>Live Infrastructure Map</h1>
-        <p>Transparency view: See exactly where civic issues are clustered across the city.</p>
+        <h1>Track & Rate Progress</h1>
+        <p>Verify contractor work, compare before/after photos, and hold authorities accountable.</p>
       </div>
-      <div class="card" style="padding: 0; overflow: hidden; height: 500px;">
-        <div id="cityMap" style="height: 100%; width: 100%; z-index: 1;"></div>
-      </div>
+      <div class="report-feed" id="trackingList">
+        </div>
     </div>
 
     <div id="transparency" class="view-section">
-      <div class="top-header">
-        <h1>Contractor Accountability</h1>
-        <p>Public ledger of municipal contractors and their current resolution scores.</p>
-      </div>
+      <div class="top-header"><h1>Contractor Accountability</h1><p>Public ledger of municipal contractors and their scores.</p></div>
       <div class="card">
         <div class="report-item" style="flex-direction: row;">
-          <div>
-            <strong style="font-size: 18px;">ABC Infra Pvt Ltd</strong>
-            <div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Assigned Area: North District</div>
-          </div>
-          <div style="text-align: right; flex: 1;">
-            <div style="font-size: 24px; font-weight: bold; color: #1e8e3e;">92%</div>
-            <div style="color: var(--text-muted); font-size: 12px;">Resolution Rate</div>
-          </div>
+          <div><strong style="font-size: 18px;">ABC Infra Pvt Ltd</strong><div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Assigned Area: North District</div></div>
+          <div style="text-align: right; flex: 1;"><div style="font-size: 24px; font-weight: bold; color: #1e8e3e;" id="contractorScore">92%</div><div style="color: var(--text-muted); font-size: 12px;">Resolution Score</div></div>
         </div>
       </div>
     </div>
@@ -195,104 +181,102 @@
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-    
-    // Find the matching nav item and highlight it
-    document.querySelectorAll('.nav-item').forEach(el => {
-      if(el.getAttribute('onclick').includes(tabId)) el.classList.add('active');
-    });
-
+    document.querySelectorAll('.nav-item').forEach(el => { if(el.getAttribute('onclick').includes(tabId)) el.classList.add('active'); });
     if (tabId === 'map') { setTimeout(() => { map.invalidateSize(); }, 100); }
   }
 
-  // --- Map to Feed Cross-Navigation ---
+  function toggleNotifs() { document.getElementById('notifDropdown').classList.toggle('show'); }
+
   function viewInFeed(reportId) {
-    switchTab('overview'); // Kick user back to overview tab
-    
-    // Slight delay to allow the tab display to render before calculating scroll position
+    switchTab('overview'); 
     setTimeout(() => {
       const feedItem = document.getElementById(`feed-item-${reportId}`);
-      if (feedItem) {
-        // Scroll to the item inside the feed container
-        feedItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Add highlight pulse
-        feedItem.classList.add('highlight-pulse');
-        
-        // Remove highlight after 2.5 seconds
-        setTimeout(() => {
-          feedItem.classList.remove('highlight-pulse');
-        }, 2500);
-      }
+      if (feedItem) { feedItem.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
     }, 150);
   }
 
   function getLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        function(position) {
-          document.getElementById("latInput").value = position.coords.latitude;
-          document.getElementById("lngInput").value = position.coords.longitude;
-        },
-        function() { alert("Location permission denied. Please allow location access."); }
+        position => { document.getElementById("latInput").value = position.coords.latitude; document.getElementById("lngInput").value = position.coords.longitude; },
+        () => alert("Location permission denied.")
       );
     }
   }
 
-  async function upvoteIssue(id, btnElement) {
-    if (btnElement.classList.contains('voted')) return;
+  async function upvoteIssue(id, btn) {
+    if (btn.classList.contains('voted')) return;
     try {
       const res = await fetch(`http://localhost:5000/complaint/${id}/upvote`, { method: "PATCH" });
       if (res.ok) {
-        const updatedData = await res.json();
-        btnElement.querySelector('.vote-count').innerText = updatedData.upvotes;
-        btnElement.classList.add('voted');
-        btnElement.innerHTML = `✅ <span class="vote-count">${updatedData.upvotes}</span>`;
+        const data = await res.json();
+        btn.querySelector('.vote-count').innerText = data.upvotes;
+        btn.classList.add('voted'); btn.innerHTML = `✅ <span class="vote-count">${data.upvotes}</span>`;
       }
-    } catch (error) { console.error("Failed to upvote:", error); }
+    } catch (e) {}
+  }
+
+  // --- Prototype: Simulate Fix ---
+  async function simulateFix(id) {
+    try {
+      await fetch(`http://localhost:5000/complaint/${id}/simulate-resolve`, { method: "PATCH" });
+      loadComplaints(); // Reload everything to show the new resolved state
+    } catch (e) { console.error("Simulate failed", e); }
+  }
+
+  // --- Submit Rating ---
+  async function submitRating(id) {
+    const form = document.getElementById(`rate-form-${id}`);
+    const rating = form.querySelector('input[name="rating"]:checked')?.value;
+    const feedbackText = form.querySelector('textarea').value;
+
+    if(!rating) return alert("Please select a star rating!");
+
+    try {
+      await fetch(`http://localhost:5000/complaint/${id}/rate`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: Number(rating), feedbackText })
+      });
+      loadComplaints(); 
+    } catch (e) {}
   }
 
   const ctx = document.getElementById('issueChart').getContext('2d');
-  const issueChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Potholes', 'Bridge Cracks', 'Drainage', 'Streetlights'],
-      datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#1a73e8', '#ea4335', '#34a853', '#fbbc04'], borderWidth: 0 }]
-    },
-    options: { responsive: true, cutout: '75%' }
-  });
+  const issueChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Potholes', 'Bridge Cracks', 'Drainage', 'Streetlights'], datasets: [{ data: [0,0,0,0], backgroundColor: ['#1a73e8', '#ea4335', '#34a853', '#fbbc04'], borderWidth: 0 }] }, options: { responsive: true, cutout: '75%' } });
 
   const map = L.map('cityMap').setView([26.8467, 80.9462], 12); 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
   const markerGroup = L.layerGroup().addTo(map);
-
-  const form = document.getElementById("complaintForm");
-  const reportsList = document.getElementById("reportsList");
 
   async function loadComplaints() {
     try {
       const res = await fetch("http://localhost:5000/complaint");
       let data = await res.json();
 
-      reportsList.innerHTML = "";
+      document.getElementById("reportsList").innerHTML = "";
+      document.getElementById("trackingList").innerHTML = "";
+      document.getElementById("notifList").innerHTML = "";
       markerGroup.clearLayers(); 
 
       let typeCounts = { 'Pothole': 0, 'Bridge Crack': 0, 'Drainage Block': 0, 'Broken Streetlight': 0 };
+      let notifCount = 0;
+      let totalRatings = 0;
+      let ratedItems = 0;
 
       data.sort((a, b) => b.upvotes - a.upvotes || new Date(b.createdAt) - new Date(a.createdAt));
 
       data.forEach(c => { 
-        let badgeClass = "status-pending";
-        let statusText = "Pending";
-        
-        if (c.status === "Resolved") { badgeClass = "status-resolved"; statusText = "Resolved"; }
-        if (c.status === "InProgress") { badgeClass = "status-inprogress"; statusText = "In Progress"; }
+        let badgeClass = c.status === "Resolved" ? "status-resolved" : "status-pending";
+        let imgHtml = c.imageUrl ? `<img src="http://localhost:5000/uploads/${c.imageUrl.split(/[\\/]/).pop()}" alt="Evidence" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">` : '';
 
-        // Format the Date beautifully
+        // 1. POPULATE COMMUNITY FEED
+        // Format the Date beautifully for the feed
         let dateObj = new Date(c.createdAt);
         let formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
 
-        // Added ID for scrolling: id="feed-item-${c._id}"
-        reportsList.innerHTML += `
+        // 1. POPULATE COMMUNITY FEED (Restored Rich Layout)
+        document.getElementById("reportsList").innerHTML += `
           <div class="report-item" id="feed-item-${c._id}">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
               <div>
@@ -301,7 +285,7 @@
                 <span style="color: #9aa0a6; font-size: 11px; display:block; margin-top:2px;">🕒 Posted on ${formattedDate}</span>
               </div>
               <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                <span class="status-badge ${badgeClass}">${statusText}</span>
+                <span class="status-badge ${badgeClass}">${c.status}</span>
                 <button onclick="upvoteIssue('${c._id}', this)" class="upvote-btn">
                   ⬆️ <span class="vote-count">${c.upvotes || 0}</span>
                 </button>
@@ -313,43 +297,89 @@
                 <span style="flex:1;"><strong>Status Update:</strong> ${c.latestUpdate || 'Report logged.'}</span>
                 <span style="text-align:right;"><strong>Est. Start:</strong> ${c.estimatedStartDate || 'TBD'}</span>
               </div>
+              
               <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                <div style="width: ${c.progressPercentage || 0}%; background: var(--accent-color); height: 100%; transition: width 0.5s ease;"></div>
+                <div style="width: ${c.status === 'Resolved' ? 100 : (c.progressPercentage || 0)}%; background: ${c.status === 'Resolved' ? '#1e8e3e' : 'var(--accent-color)'}; height: 100%; transition: width 0.5s ease;"></div>
               </div>
-              <div style="text-align: right; font-size: 11px; color: #9aa0a6; margin-top: 4px; font-weight:bold;">${c.progressPercentage || 0}% Complete</div>
+              <div style="text-align: right; font-size: 11px; color: #9aa0a6; margin-top: 4px; font-weight:bold;">${c.status === 'Resolved' ? '100% Complete' : (c.progressPercentage || 0) + '% Complete'}</div>
             </div>
           </div>
         `;
 
-        // Add to Map with the New Button
-        if (c.latitude && c.longitude) {
-          const mapIcon = L.divIcon({ className: 'custom-icon', html: `<div style="font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.2));">📍</div>`, iconSize: [30, 30], iconAnchor: [15, 30] });
-          let imgHtml = '';
-          if (c.imageUrl) {
-            let filename = c.imageUrl.split(/[\\/]/).pop(); 
-            imgHtml = `<img src="http://localhost:5000/uploads/${filename}" style="width:100%; height:130px; object-fit:cover; border-radius:8px; margin-bottom:10px; border:1px solid #eaeaea;" alt="Evidence">`;
+        // 2. POPULATE TRACK & RATE TAB
+        if (c.status !== "Resolved") {
+          document.getElementById("trackingList").innerHTML += `
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+              <div><strong>${c.damageType}</strong> - 📍 ${c.areaName}<br><span class="status-badge status-pending" style="margin-top:5px;">Pending Fix</span></div>
+              <button onclick="simulateFix('${c._id}')" style="background:#ea4335; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">🛠️ Demo: Simulate Fix</button>
+            </div>
+          `;
+        } else {
+          // It IS resolved. Did they rate it yet?
+          if(!c.rating) {
+            notifCount++;
+            document.getElementById("notifList").innerHTML += `<div class="notif-item" onclick="switchTab('tracking')">✅ <strong>${c.damageType}</strong> at ${c.areaName} was resolved! Please verify and rate the contractor.</div>`;
+            
+            document.getElementById("trackingList").innerHTML += `
+              <div class="card" style="border-left: 4px solid var(--accent-color);">
+                <div style="display:flex; justify-content:space-between;">
+                  <div><strong>Action Required: Verify Resolution</strong><br><span style="font-size:13px; color:#5f6368;">${c.damageType} at ${c.areaName}</span></div>
+                  <span class="status-badge status-resolved">Awaiting Your Rating</span>
+                </div>
+                
+                <div class="proof-images">
+                  <div><span style="font-size:12px; font-weight:bold; color:#5f6368;">BEFORE</span><br>${c.imageUrl ? `<img src="http://localhost:5000/uploads/${c.imageUrl.split(/[\\/]/).pop()}">` : 'No Image'}</div>
+                  <div><span style="font-size:12px; font-weight:bold; color:#1e8e3e;">AFTER (Contractor Proof)</span><br><img src="${c.resolutionImageUrl}"></div>
+                </div>
+                <p style="font-size:13px; background:#f8f9fa; padding:10px; border-radius:6px;"><strong>Contractor Note:</strong> "${c.resolutionText}"</p>
+
+                <form id="rate-form-${c._id}" style="margin-top:15px; border-top:1px solid #eee; padding-top:15px;">
+                  <strong style="font-size:14px;">Rate the repair quality:</strong>
+                  <div class="star-rating">
+                    <input type="radio" id="star5-${c._id}" name="rating" value="5"><label for="star5-${c._id}">★</label>
+                    <input type="radio" id="star4-${c._id}" name="rating" value="4"><label for="star4-${c._id}">★</label>
+                    <input type="radio" id="star3-${c._id}" name="rating" value="3"><label for="star3-${c._id}">★</label>
+                    <input type="radio" id="star2-${c._id}" name="rating" value="2"><label for="star2-${c._id}">★</label>
+                    <input type="radio" id="star1-${c._id}" name="rating" value="1"><label for="star1-${c._id}">★</label>
+                  </div>
+                  <textarea placeholder="Leave feedback for the contractor..." style="height:60px; margin-bottom:10px;"></textarea>
+                  <button type="button" class="btn-primary" onclick="submitRating('${c._id}')">Submit Final Rating</button>
+                </form>
+              </div>
+            `;
+          } else {
+            // Already rated!
+            totalRatings += c.rating; ratedItems++;
+            document.getElementById("trackingList").innerHTML += `
+              <div class="card" style="opacity: 0.8;">
+                <div style="display:flex; justify-content:space-between;">
+                  <div><strong>${c.damageType}</strong> - 📍 ${c.areaName}</div>
+                  <span style="color:#fbbc04; font-weight:bold;">Rated ${c.rating} / 5 Stars ★</span>
+                </div>
+                <div style="font-size:13px; margin-top:8px; color:#5f6368;">Your Feedback: "${c.feedbackText}"</div>
+              </div>
+            `;
           }
-          let displaySeverity = c.severity || 'Not Specified';
-          let safeText = c.complaintText ? c.complaintText.replace('undefined ', '') : 'No description provided.';
-          
-          let popupHtml = `
-            <div style="min-width: 240px; font-family: sans-serif;">
-              ${imgHtml}
-              <strong style="font-size:16px; display:block; margin-bottom:4px; color:#202124;">${c.damageType}</strong>
-              <span style="color:#5f6368; font-size:13px; display:block; margin-bottom:2px;">📍 ${c.areaName}</span>
-              <span style="color:#5f6368; font-size:13px; display:block; margin-bottom:10px;">⚠️ Severity: ${displaySeverity}</span>
-              <div style="background:#f8f9fa; padding:10px; border-radius:6px; font-size:12px; color:#3c4043; margin-bottom:10px; border-left: 3px solid var(--accent-color, #1a73e8);"><em>"${safeText}"</em></div>
-              <span style="color:#1a73e8; font-size:13px; display:block; font-weight:600; margin-bottom:10px;">🏢 Authority: ${c.contractorName || 'Unassigned'}</span>
-              
-              <button onclick="viewInFeed('${c._id}')" style="width: 100%; margin-top: 5px; padding: 10px; background: white; border: 1px solid var(--accent-color); color: var(--accent-color); border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;">
-                View in Community Feed 💬
-              </button>
-            </div>`;
-          L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup).bindPopup(popupHtml);
         }
 
-        if (typeCounts[c.damageType] !== undefined) { typeCounts[c.damageType]++; }
+        // Map and Chart prep
+        if (c.latitude && c.longitude) {
+          const mapIcon = L.divIcon({ className: 'custom-icon', html: `<div style="font-size: 28px;">📍</div>`, iconSize: [30, 30] });
+          L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup).bindPopup(`<strong>${c.damageType}</strong><br>📍 ${c.areaName}<br><button onclick="viewInFeed('${c._id}')" style="margin-top:5px; cursor:pointer;">View Feed</button>`);
+        }
+        if (typeCounts[c.damageType] !== undefined) typeCounts[c.damageType]++;
       });
+
+      // Update Notifications UI
+      const badge = document.getElementById("notifCount");
+      if(notifCount > 0) { badge.style.display = "flex"; badge.innerText = notifCount; } 
+      else { badge.style.display = "none"; document.getElementById("notifList").innerHTML = "No new alerts.";}
+
+      // Update Contractor Reputation Score Dynamically
+      if(ratedItems > 0) {
+        let avgScore = ((totalRatings / (ratedItems * 5)) * 100).toFixed(0);
+        document.getElementById("contractorScore").innerText = `${avgScore}%`;
+      }
 
       document.getElementById("totalReports").innerText = data.length;
       document.getElementById("pendingReports").innerText = data.filter(c => c.status !== "Resolved").length;
@@ -358,21 +388,13 @@
       issueChart.data.datasets[0].data = [ typeCounts['Pothole'], typeCounts['Bridge Crack'], typeCounts['Drainage Block'], typeCounts['Broken Streetlight'] ];
       issueChart.update();
 
-    } catch (error) { console.log("Error loading complaints:", error); }
+    } catch (error) { console.log(error); }
   }
 
-  form.addEventListener("submit", async (e) => {
+  document.getElementById("complaintForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const formData = new FormData(form);
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.innerText = "Submitting...";
-    try {
-      await fetch("http://localhost:5000/complaint", { method: "POST", body: formData });
-      form.reset();
-      loadComplaints();
-      switchTab('overview');
-      submitBtn.innerText = "Submit Report to Authorities";
-    } catch (error) { console.error(error); submitBtn.innerText = "Error - Try Again"; }
+    await fetch("http://localhost:5000/complaint", { method: "POST", body: new FormData(e.target) });
+    e.target.reset(); loadComplaints(); switchTab('overview');
   });
 
   loadComplaints();

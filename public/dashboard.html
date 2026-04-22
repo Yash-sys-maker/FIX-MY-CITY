@@ -513,7 +513,7 @@
         `;
 
         // Add to Map
-        // Add to Map
+       // Add to Map
         if (c.latitude && c.longitude) {
           // Custom Map Pin using Emoji
           const mapIcon = L.divIcon({
@@ -523,23 +523,28 @@
             iconAnchor: [15, 30]
           });
 
-          // 1. Handle the uploaded image (fixing Windows file paths if needed)
+          // 1. Handle the uploaded image (Foolproof filename extraction)
           let imgHtml = '';
           if (c.imageUrl) {
-            let safeImgPath = c.imageUrl.replace(/\\\\/g, '/').replace(/\\/g, '/');
-            imgHtml = `<img src="http://localhost:5000/${safeImgPath}" style="width:100%; height:130px; object-fit:cover; border-radius:8px; margin-bottom:10px; border:1px solid #eaeaea;" alt="Evidence">`;
+            // This safely grabs JUST the image name (e.g., "1771944956752.jpg") regardless of Mac/Windows paths
+            let filename = c.imageUrl.split(/[\\/]/).pop(); 
+            imgHtml = `<img src="http://localhost:5000/uploads/${filename}" style="width:100%; height:130px; object-fit:cover; border-radius:8px; margin-bottom:10px; border:1px solid #eaeaea;" alt="Evidence">`;
           }
 
-          // 2. Build the advanced popup HTML
+          // 2. Handle old database records missing severity
+          let displaySeverity = c.severity || 'Not Specified';
+          let safeText = c.complaintText ? c.complaintText.replace('undefined ', '') : 'No description provided.';
+
+          // 3. Build the advanced popup HTML
           let popupHtml = `
             <div style="min-width: 240px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
               ${imgHtml}
               <strong style="font-size:16px; display:block; margin-bottom:4px; color:#202124;">${c.damageType}</strong>
               <span style="color:#5f6368; font-size:13px; display:block; margin-bottom:2px;">📍 ${c.areaName}</span>
-              <span style="color:#5f6368; font-size:13px; display:block; margin-bottom:10px;">⚠️ Severity: ${c.severity}</span>
+              <span style="color:#5f6368; font-size:13px; display:block; margin-bottom:10px;">⚠️ Severity: ${displaySeverity}</span>
               
               <div style="background:#f8f9fa; padding:10px; border-radius:6px; font-size:12px; color:#3c4043; margin-bottom:10px; border-left: 3px solid var(--accent-color, #1a73e8);">
-                <em>"${c.complaintText || 'No description provided.'}"</em>
+                <em>"${safeText}"</em>
               </div>
 
               <span style="color:#1a73e8; font-size:13px; display:block; font-weight:600; margin-bottom:10px;">🏢 Authority: ${c.contractorName || 'Unassigned'}</span>
@@ -548,7 +553,7 @@
             </div>
           `;
 
-          // 3. Bind the advanced popup to the marker
+          // 4. Bind the advanced popup to the marker
           L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup)
             .bindPopup(popupHtml);
         }

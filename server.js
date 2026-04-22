@@ -54,6 +54,22 @@ const complaintSchema = new mongoose.Schema({
     type: String,
     default: "Pending"
   },
+  upvotes: { 
+    type: Number, 
+    default: 0 
+  },
+  progressPercentage: { 
+    type: Number, 
+    default: 0 
+  },
+  estimatedStartDate: { 
+    type: String, 
+    default: "Pending Assignment" 
+  },
+  latestUpdate: { 
+    type: String, 
+    default: "Report received and awaiting authority review." 
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -178,6 +194,18 @@ app.post("/auth/login", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Login failed" });
+  }
+});
+
+app.patch("/complaint/:id/upvote", async (req, res) => {
+  try {
+    const complaint = await Complaint.findById(req.params.id);
+    complaint.upvotes += 1;
+    await complaint.save();
+    res.status(200).json(complaint);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error upvoting" });
   }
 });
 

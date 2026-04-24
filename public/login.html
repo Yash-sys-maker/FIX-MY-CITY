@@ -3,137 +3,421 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - FixMyCity</title>
-
+<title>Welcome - FixMyCity</title>
 <style>
-body {
-  margin: 0;
-  font-family: 'Georgia', serif;
-  background: linear-gradient(to bottom, #f8f8f8, #ececec);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.login-container {
-  background: white;
-  width: 380px;
-  padding: 50px 40px;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-  text-align: center;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeIn 0.8s ease forwards;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  :root {
+    --bg-color: #f7f9fa;
+    --sidebar-bg: #ffffff;
+    --text-main: #202124;
+    --text-muted: #5f6368;
+    --accent-color: #1a73e8; 
+    --accent-hover: #1557b0;
+    --card-bg: #ffffff;
+    --border-radius: 16px;
+    --shadow-blurred: 0 40px 100px rgba(0, 0, 0, 0.08); 
+    --error-color: #d93025;
   }
-}
 
-.logo {
-  width: 160px;
-  margin-bottom: 20px;
-}
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-h2 {
-  margin-bottom: 30px;
-  font-weight: 500;
-  color: #222;
-}
+  /* Split Layout */
+  .left-panel {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    z-index: 10;
+    position: relative;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.05);
+    padding: 0 5%;
+  }
 
-input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 18px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  font-family: Arial, sans-serif;
-}
+  .right-panel {
+    width: 55%;
+    position: relative;
+    overflow: hidden; 
+    background: #202124; 
+  }
 
-input:focus {
-  outline: none;
-  border-color: #444;
-}
+  /* Right Panel Slider/Carousel */
+  .right-panel-slider {
+    display: flex;
+    width: 200%; 
+    height: 100%;
+    transition: transform 0.8s ease-in-out; 
+  }
 
-button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 6px;
-  border: none;
-  background: #222;
-  color: white;
-  font-size: 15px;
-  cursor: pointer;
-  transition: 0.3s;
-}
+  .slide {
+    width: 50%; 
+    height: 100%;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
 
-button:hover {
-  background: #000;
-}
+  /* Grounded, municipal photos */
+  .slide-1 { 
+    background-image: url('https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1200&q=80'); 
+  }
+  .slide-2 { 
+    background-image: url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1200&q=80'); 
+  }
 
-.footer-text {
-  margin-top: 20px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-}
+  /* Made the gradient lighter so you can actually see the photos! */
+  .right-panel-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to right, rgba(26, 33, 48, 0.85), rgba(26, 33, 48, 0.2));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px;
+    color: white;
+  }
 
-.footer-text a {
-  text-decoration: none;
-  color: #222;
-  font-weight: bold;
-}
+  .right-panel h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+
+  .right-panel p {
+    font-size: 20px;
+    color: #e8eaed;
+    max-width: 80%;
+    line-height: 1.5;
+  }
+
+  /* Boxed Auth System */
+  .auth-card {
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-blurred); 
+    width: 100%;
+    max-width: 420px;
+  }
+
+  /* Cleaned up Logo Area - Just the image now */
+  .logo-area {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 35px;
+  }
+  
+  .brand-logo {
+    width: 260px; /* Sized perfectly for your wide logo */
+    height: auto;
+    object-fit: contain;
+  }
+
+  .form-container {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .form-container.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h2 {
+    font-size: 28px;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.5px;
+    color: #202124;
+  }
+
+  p.subtitle {
+    color: var(--text-muted);
+    margin: 0 0 30px 0;
+    font-size: 15px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: 0.2s;
+    background: #fafafa;
+    font-family: inherit;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+  }
+
+  button.btn-primary {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: var(--text-main);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 10px;
+  }
+
+  button.btn-primary:hover {
+    background: black;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .toggle-text {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .toggle-text a {
+    color: var(--accent-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .toggle-text a:hover {
+    text-decoration: underline;
+  }
+
+  .alert {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+    text-align: center;
+  }
+
+  .alert.error { background: #fce8e6; color: var(--error-color); border: 1px solid rgba(217,48,37,0.2); display: block; }
+  .alert.success { background: #e6f4ea; color: #1e8e3e; border: 1px solid rgba(30,142,62,0.2); display: block; }
 </style>
 </head>
-
 <body>
 
-<div class="login-container">
-  <img src="logo.png" class="logo" alt="FixMyCity Logo">
+  <div class="left-panel">
+    
+    <div class="logo-area">
+      <img src="logo.png" alt="FixMyCity Logo" class="brand-logo">
+    </div>
 
-  <h2>Member Login</h2>
+    <div class="auth-card">
+      
+      <div class="form-container active" id="loginView">
+        <h2>Welcome back</h2>
+        <p class="subtitle">Enter your details to access the dashboard.</p>
+        
+        <div id="loginAlert" class="alert"></div>
 
-  <form id="loginForm">
-    <input type="email" name="email" placeholder="Email address" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-  </form>
+        <form id="loginForm">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="municipal@example.gov" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="btn-primary" id="loginBtn">Log In</button>
+        </form>
+        
+        <div class="toggle-text">
+          Don't have an account? <a onclick="toggleForms('registerView')">Sign up</a>
+        </div>
+      </div>
 
-  <div class="footer-text">
-    New member? <a href="register.html">Create Account</a>
+      <div class="form-container" id="registerView">
+        <h2>Create an account</h2>
+        <p class="subtitle">Join your community to report and track infrastructure.</p>
+        
+        <div id="registerAlert" class="alert"></div>
+
+        <form id="registerForm">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="name" placeholder="Citizen or Official" required>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="public@example.com" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Create a secure password" required>
+          </div>
+          <button type="submit" class="btn-primary" id="registerBtn">Create Account</button>
+        </form>
+        
+        <div class="toggle-text">
+          Already have an account? <a onclick="toggleForms('loginView')">Log in</a>
+        </div>
+      </div>
+
+    </div>
   </div>
-</div>
+
+  <div class="right-panel">
+    <div class="right-panel-slider" id="panelSlider">
+      
+      <div class="slide slide-1">
+        <div class="right-panel-overlay">
+          <h1>REPORT CIVIC<br>PROBLEMS.</h1>
+          <p>Report visible issues like potholes and broken lights directly to the assigned contractor in your ward.</p>
+        </div>
+      </div>
+      
+      <div class="slide slide-2">
+        <div class="right-panel-overlay">
+          <h1>TRACK MUNICIPAL<br>RESULTS.</h1>
+          <p>Verify problem resolution and rate contractor performance. Keeping authorities and contractors accountable.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
 <script>
-const form = document.getElementById("loginForm");
+  function toggleForms(viewId) {
+    document.getElementById('loginView').classList.remove('active');
+    document.getElementById('registerView').classList.remove('active');
+    
+    document.getElementById('loginAlert').className = "alert";
+    document.getElementById('registerAlert').className = "alert";
+    
+    document.getElementById(viewId).classList.add('active');
+  }
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+  // --- Right Panel Auto-Alternating Logic with Sideway Sweep ---
+  const slider = document.getElementById('panelSlider');
+  let currentSlide = 1;
+  const slideCount = 2;
+  const intervalTime = 10000; 
 
-  const formData = new FormData(form);
-  const data = Object.fromEntries(formData);
+  function advanceSlide() {
+    currentSlide = (currentSlide % slideCount) + 1;
+    if (currentSlide === 1) {
+      slider.style.transform = "translateX(0)";
+    } else {
+      slider.style.transform = "translateX(-50%)"; 
+    }
+  }
 
-  const response = await fetch("/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+  setInterval(advanceSlide, intervalTime);
+
+  // --- Handle Login ---
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("loginBtn");
+    const alertBox = document.getElementById("loginAlert");
+    
+    btn.innerText = "Authenticating...";
+    alertBox.className = "alert"; 
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const res = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      
+      const result = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("user", JSON.stringify(result.user));
+        btn.innerText = "Success! Redirecting...";
+        window.location.href = "dashboard.html";
+      } else {
+        alertBox.innerText = result.message;
+        alertBox.className = "alert error";
+        btn.innerText = "Log In";
+      }
+    } catch (error) {
+      alertBox.innerText = "Server connection failed. Is the backend running?";
+      alertBox.className = "alert error";
+      btn.innerText = "Log In";
+    }
   });
 
-  const result = await response.json();
+  // --- Handle Registration ---
+  document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("registerBtn");
+    const alertBox = document.getElementById("registerAlert");
+    
+    btn.innerText = "Creating account...";
+    alertBox.className = "alert"; 
 
-  if (response.ok) {
-    localStorage.setItem("user", JSON.stringify(result.user));
-    window.location.href = "dashboard.html";
-  } else {
-    alert(result.message);
-  }
-});
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const res = await fetch("http://localhost:5000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alertBox.innerText = "Account created successfully! You can now log in.";
+        alertBox.className = "alert success";
+        e.target.reset();
+        
+        setTimeout(() => { toggleForms('loginView'); }, 1500);
+      } else {
+        alertBox.innerText = result.message;
+        alertBox.className = "alert error";
+      }
+    } catch (error) {
+      alertBox.innerText = "Server connection failed. Is the backend running?";
+      alertBox.className = "alert error";
+    }
+    
+    btn.innerText = "Create Account";
+  });
 </script>
-
 </body>
 </html>

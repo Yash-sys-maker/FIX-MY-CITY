@@ -10,27 +10,27 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-  :root { --bg-color: #f7f9fa; --sidebar-bg: #ffffff; --text-main: #202124; --text-muted: #5f6368; --accent-color: #1a73e8; --card-bg: #ffffff; --border-radius: 16px; --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.03); --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08); }
+  :root { --bg-color: #f7f9fa; --sidebar-bg: #ffffff; --text-main: #202124; --text-muted: #5f6368; --accent-color: #1a73e8; --card-bg: #ffffff; --border-radius: 16px; --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.03); }
   body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
   .sidebar { width: 260px; background: var(--sidebar-bg); padding: 30px 20px; display: flex; flex-direction: column; border-right: 1px solid #eaeaea; z-index: 10; }
-  .logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 50px; padding-left: 10px; }
+  .logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; padding-left: 10px; }
   .logo-text { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
   .nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
   .nav-item { padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 500; color: var(--text-muted); transition: all 0.2s ease; display: flex; align-items: center; gap: 12px; }
   .nav-item:hover { background: #f1f3f4; color: var(--text-main); }
   .nav-item.active { background: #e8f0fe; color: var(--accent-color); font-weight: 600; }
-  .logout-btn { padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 500; color: #d93025; background: #fce8e6; border: none; text-align: left; transition: 0.2s; }
+  
+  .vip-demo-btn { margin-top: auto; padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; color: #fff; background: #ea4335; border: none; text-align: center; transition: 0.2s; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(234,67,53,0.3); }
+  .vip-demo-btn:hover { background: #c5221f; transform: translateY(-2px); }
+  .logout-btn { padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 500; color: #5f6368; background: #f1f3f4; border: none; text-align: center; transition: 0.2s; }
 
-  /* Navbar & Notifications */
   .top-navbar { position: absolute; top: 20px; right: 50px; display: flex; align-items: center; gap: 20px; z-index: 100; }
   .notification-bell { position: relative; cursor: pointer; font-size: 24px; padding: 10px; background: white; border-radius: 50%; box-shadow: var(--shadow-subtle); transition: 0.2s; }
-  .notification-bell:hover { transform: scale(1.05); }
   .badge { position: absolute; top: 0; right: 0; background: #ea4335; color: white; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
-  .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 300px; background: white; border-radius: 12px; box-shadow: var(--shadow-hover); padding: 15px; border: 1px solid #eaeaea; max-height: 300px; overflow-y: auto; }
+  .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 300px; background: white; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); padding: 15px; border: 1px solid #eaeaea; max-height: 300px; overflow-y: auto; }
   .notif-dropdown.show { display: block; animation: fadeIn 0.2s ease; }
   .notif-item { padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; cursor: pointer; border-radius: 6px;}
-  .notif-item:hover { background: #f8f9fa; }
 
   .main-content { flex: 1; padding: 40px 50px; overflow-y: auto; position: relative; padding-top: 80px;}
   .top-header { margin-bottom: 40px; }
@@ -49,48 +49,40 @@
   .form-group { margin-bottom: 20px; }
   label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: var(--text-muted); }
   input, select, textarea { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; box-sizing: border-box; background: #fafafa; font-family: inherit;}
-  
-  button.btn-primary { padding: 14px 24px; border: none; border-radius: 8px; background: var(--text-main); color: white; font-size: 16px; font-weight: 500; cursor: pointer; width: 100%; }
+  button.btn-primary { padding: 14px 24px; border: none; border-radius: 8px; background: var(--accent-color); color: white; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; }
   button.btn-secondary { padding: 12px 18px; border: 1px solid #ddd; border-radius: 8px; background: white; color: var(--text-main); font-size: 14px; cursor: pointer; margin-top: 10px; }
 
   .report-feed { display: flex; flex-direction: column; gap: 16px; }
-  .report-item { display: flex; flex-direction: column; gap: 14px; padding: 20px; background: white; border-radius: 12px; border: 1px solid #f0f0f0; }
+  
+  /* Upgraded Report Item for Hover & Click */
+  .report-item { padding: 20px; background: white; border-radius: 12px; border: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
+  .report-item:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-color: #d2e3fc; }
   
   .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-align: center; display: inline-block;}
-  .status-pending { background: #fef0f0; color: #d93025; }
+  .status-pending { background: #fce8e6; color: #d93025; }
   .status-resolved { background: #e6f4ea; color: #1e8e3e; }
   .status-inprogress { background: #fef7e0; color: #f9ab00; }
-
-  .upvote-btn { background: #f1f3f4; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 6px; font-size: 14px;}
+  .upvote-btn { background: #f1f3f4; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 6px; font-size: 14px; z-index: 2;}
+  .upvote-btn:hover { background: #e8f0fe; color: var(--accent-color); }
   .upvote-btn.voted { background: #e8f0fe; color: var(--accent-color); }
-
-  /* Rating Stars CSS */
+  
   .star-rating { display: flex; gap: 5px; flex-direction: row-reverse; justify-content: flex-end; margin-bottom: 10px;}
   .star-rating input { display: none; }
   .star-rating label { font-size: 24px; color: #ccc; cursor: pointer; transition: 0.2s; }
   .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbc04; }
-  
   .proof-images { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;}
   .proof-images img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #eaeaea; }
 
-  /* Modern AI Processing Overlay */
+  /* AI Overlay */
   .processing-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(32, 33, 36, 0.4); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; }
   .processing-box { background: white; padding: 40px; border-radius: 24px; width: 420px; box-shadow: 0 24px 60px rgba(0,0,0,0.15); text-align: center; }
   .ai-icon-container { width: 64px; height: 64px; background: #e8f0fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; animation: pulseGlow 2s infinite; }
   @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(26,115,232,0.4); } 70% { box-shadow: 0 0 0 15px rgba(26,115,232,0); } 100% { box-shadow: 0 0 0 0 rgba(26,115,232,0); } }
-  .processing-title { font-size: 22px; font-weight: 700; color: #202124; margin-bottom: 8px; letter-spacing: -0.5px; }
-  .processing-subtitle { font-size: 14px; color: #5f6368; margin-bottom: 30px; }
-  
-  .step-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #f8f9fa; border-radius: 12px; margin-bottom: 12px; font-size: 14px; color: #5f6368; font-weight: 500; transition: all 0.3s ease; border: 1px solid transparent;}
-  .step-row.active { background: #e8f0fe; color: #1a73e8; border-color: rgba(26, 115, 232, 0.2); }
-  .step-row.success { background: #e6f4ea; color: #1e8e3e; border-color: rgba(30, 142, 62, 0.2); }
-  .step-row.warning { background: #fef7e0; color: #b06000; border-color: rgba(249, 171, 0, 0.2); }
-  .step-row.error { background: #fce8e6; color: #d93025; border-color: rgba(217, 48, 37, 0.2); }
-  
-  .score-display { font-size: 48px; font-weight: 800; color: #202124; margin: 25px 0; display: none; letter-spacing: -1px;}
-  
-  .close-overlay-btn { display: none; width: 100%; padding: 14px; background: var(--accent-color); color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 25px; font-size: 15px; font-weight: 600; transition: 0.2s; }
-  .close-overlay-btn:hover { background: #1557b0; box-shadow: 0 4px 12px rgba(26,115,232,0.3); }
+  .step-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #f8f9fa; border-radius: 12px; margin-bottom: 12px; font-size: 14px; font-weight: 500;}
+  .step-row.active { background: #e8f0fe; color: #1a73e8; }
+  .step-row.success { background: #e6f4ea; color: #1e8e3e; }
+  .score-display { font-size: 48px; font-weight: 800; margin: 25px 0; display: none;}
+  .close-overlay-btn { display: none; width: 100%; padding: 14px; background: var(--accent-color); color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 25px; font-size: 15px; font-weight: 600;}
 </style>
 </head>
 <body>
@@ -98,25 +90,12 @@
   <div class="processing-overlay" id="processingOverlay">
     <div class="processing-box">
       <div class="ai-icon-container" id="aiIcon">✨</div>
-      <div class="processing-title">AI Verification System</div>
-      <div class="processing-subtitle">Analyzing reported infrastructure issue</div>
-      
+      <h3 style="margin:0 0 5px 0;">AI Verification System</h3>
+      <p style="margin:0 0 20px 0; font-size:14px; color:#5f6368;">Analyzing reported infrastructure issue</p>
       <div class="score-display" id="scoreDisplay">0%</div>
-
-      <div class="step-row" id="step1">
-        <span style="display:flex; align-items:center; gap:8px;"><span id="step1-icon">⏳</span> Image Analysis</span>
-        <span id="step1-status">Waiting...</span>
-      </div>
-      
-      <div class="step-row" id="step2">
-        <span style="display:flex; align-items:center; gap:8px;"><span id="step2-icon">⏳</span> Geo-Spatial Scan</span>
-        <span id="step2-status">Waiting...</span>
-      </div>
-
-      <div class="step-row" id="finalResult" style="display: none; justify-content: center; text-align: center; margin-top: 20px;">
-        <span id="finalMessage">Result...</span>
-      </div>
-
+      <div class="step-row" id="step1"><span>⏳ Image Analysis</span><span id="step1-status">Waiting...</span></div>
+      <div class="step-row" id="step2"><span>⏳ Geo-Spatial Scan</span><span id="step2-status">Waiting...</span></div>
+      <div class="step-row" id="finalResult" style="display:none; justify-content:center; margin-top:20px;"><span id="finalMessage">Result...</span></div>
       <button class="close-overlay-btn" id="closeOverlayBtn" onclick="closeOverlay()">Acknowledge & Continue</button>
     </div>
   </div>
@@ -124,17 +103,12 @@
   <div class="top-navbar">
     <div class="notification-bell" onclick="toggleNotifs()">
       🔔 <span id="notifCount" class="badge" style="display:none;">0</span>
-      <div id="notifDropdown" class="notif-dropdown">
-        <strong style="display:block; margin-bottom:10px;">Alerts</strong>
-        <div id="notifList">No new notifications.</div>
-      </div>
+      <div id="notifDropdown" class="notif-dropdown"><strong style="display:block; margin-bottom:10px;">Alerts</strong><div id="notifList">No new alerts.</div></div>
     </div>
   </div>
 
   <div class="sidebar">
-    <div class="logo-area">
-      <div class="logo-text">FixMyCity</div>
-    </div>
+    <div class="logo-area"><div class="logo-text">FixMyCity</div></div>
     <div class="nav-menu">
       <div class="nav-item active" onclick="switchTab('overview')">Overview</div>
       <div class="nav-item" onclick="switchTab('report')">Submit Issue</div>
@@ -142,30 +116,22 @@
       <div class="nav-item" onclick="switchTab('tracking')">Track & Rate</div>
       <div class="nav-item" onclick="switchTab('transparency')">Contractor Scores</div>
     </div>
+    <button class="vip-demo-btn" onclick="injectDemoData()">🚀 Load VIP Demo</button>
     <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 
   <div class="main-content">
     
     <div id="overview" class="view-section active">
-      <div class="top-header">
-        <h1 id="welcomeUser">Welcome back</h1>
-        <p>Here is the current infrastructure status in your area.</p>
-      </div>
+      <div class="top-header"><h1 id="welcomeUser">Welcome back</h1><p>Here is the current infrastructure status in your area.</p></div>
       <div class="dashboard-grid">
         <div class="card"><div class="stat-title">Total Reports</div><div class="stat-value" id="totalReports">0</div></div>
         <div class="card"><div class="stat-title">Pending Action</div><div class="stat-value" id="pendingReports" style="color: #d93025;">0</div></div>
         <div class="card"><div class="stat-title">Successfully Resolved</div><div class="stat-value" id="resolvedReports" style="color: #1e8e3e;">0</div></div>
       </div>
       <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
-        <div class="card">
-          <h3 style="margin-top:0; font-weight: 600;">Issues by Type</h3>
-          <canvas id="issueChart" height="250"></canvas>
-        </div>
-        <div class="card">
-          <h3 style="margin-top:0; font-weight: 600;">Community Feed</h3>
-          <div class="report-feed" id="reportsList" style="max-height: 450px; overflow-y: auto; padding-right: 10px;"></div>
-        </div>
+        <div class="card"><h3 style="margin-top:0;">Issues by Type</h3><canvas id="issueChart" height="250"></canvas></div>
+        <div class="card"><h3 style="margin-top:0;">Community Feed</h3><div class="report-feed" id="reportsList" style="max-height: 450px; overflow-y: auto; padding-right:10px;"></div></div>
       </div>
     </div>
 
@@ -179,11 +145,19 @@
             <div style="flex: 1;"><label>Longitude</label><input type="text" name="longitude" id="lngInput" required readonly></div>
           </div>
           <button type="button" class="btn-secondary" onclick="getLocation()" style="margin-bottom: 20px; width: 100%;">📍 Auto-Detect My Coordinates</button>
+          
           <div class="form-group"><label>Location/Area Name</label><input type="text" name="areaName" placeholder="e.g. Main Street" required></div>
+          
           <div class="form-group" style="display: flex; gap: 15px;">
             <div style="flex: 1;"><label>Issue Type</label><select name="damageType" required><option value="">Select...</option><option>Pothole</option><option>Bridge Crack</option><option>Drainage Block</option><option>Broken Streetlight</option></select></div>
             <div style="flex: 1;"><label>Severity</label><select name="severity" required><option value="">Select...</option><option>Low</option><option>Medium</option><option>High</option></select></div>
           </div>
+
+          <div class="form-group">
+            <label>Description of Issue</label>
+            <textarea name="complaintText" placeholder="Please describe the problem in detail to assist contractors..." required style="height: 80px;"></textarea>
+          </div>
+
           <button type="submit" class="btn-primary">Submit Report</button>
         </form>
       </div>
@@ -191,24 +165,20 @@
 
     <div id="map" class="view-section">
       <div class="top-header"><h1>Live Map</h1><p>See exactly where civic issues are clustered.</p></div>
-      <div class="card" style="padding: 0; overflow: hidden; height: 500px;"><div id="cityMap" style="height: 100%; width: 100%; z-index: 1;"></div></div>
+      <div class="card" style="padding: 0; overflow: hidden; height: 600px;"><div id="cityMap" style="height: 100%; width: 100%; z-index: 1;"></div></div>
     </div>
 
     <div id="tracking" class="view-section">
-      <div class="top-header">
-        <h1>Track & Rate Progress</h1>
-        <p>Verify contractor work, compare before/after photos, and hold authorities accountable.</p>
-      </div>
-      <div class="report-feed" id="trackingList">
-        </div>
+      <div class="top-header"><h1>Track & Rate Progress</h1><p>Verify contractor work and compare before/after photos.</p></div>
+      <div class="report-feed" id="trackingList"></div>
     </div>
 
     <div id="transparency" class="view-section">
       <div class="top-header"><h1>Contractor Accountability</h1><p>Public ledger of municipal contractors and their scores.</p></div>
       <div class="card">
-        <div class="report-item" style="flex-direction: row;">
-          <div><strong style="font-size: 18px;">ABC Infra Pvt Ltd</strong><div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Assigned Area: North District</div></div>
-          <div style="text-align: right; flex: 1;"><div style="font-size: 24px; font-weight: bold; color: #1e8e3e;" id="contractorScore">92%</div><div style="color: var(--text-muted); font-size: 12px;">Resolution Score</div></div>
+        <div style="display: flex; flex-direction: row; align-items:center;">
+          <div><strong style="font-size: 18px;">ABC Infra Pvt Ltd</strong><div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Assigned Area: City Center</div></div>
+          <div style="text-align: right; flex: 1;"><div style="font-size: 28px; font-weight: bold; color: #1e8e3e;" id="contractorScore">92%</div><div style="color: var(--text-muted); font-size: 12px;">Citizen Satisfaction Score</div></div>
         </div>
       </div>
     </div>
@@ -232,11 +202,31 @@
 
   function toggleNotifs() { document.getElementById('notifDropdown').classList.toggle('show'); }
 
+  // --- NEW: Toggle the rich data view inside the Feed ---
+  function toggleFeedDetails(id, event) {
+    // Stop the click from expanding if they are just clicking the Upvote button
+    if(event.target.closest('.upvote-btn')) return;
+    
+    const detailBox = document.getElementById(`detail-${id}`);
+    if(detailBox.style.display === "none") {
+      detailBox.style.display = "block";
+      detailBox.style.animation = "fadeIn 0.3s ease";
+    } else {
+      detailBox.style.display = "none";
+    }
+  }
+
   function viewInFeed(reportId) {
     switchTab('overview'); 
     setTimeout(() => {
       const feedItem = document.getElementById(`feed-item-${reportId}`);
-      if (feedItem) { feedItem.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      if (feedItem) { 
+        feedItem.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+        feedItem.style.boxShadow = "0 0 0 4px rgba(26,115,232,0.3)"; 
+        setTimeout(()=> feedItem.style.boxShadow="none", 2000); 
+        // Auto expand it!
+        document.getElementById(`detail-${reportId}`).style.display = "block";
+      }
     }, 150);
   }
 
@@ -246,6 +236,16 @@
         position => { document.getElementById("latInput").value = position.coords.latitude; document.getElementById("lngInput").value = position.coords.longitude; },
         () => alert("Location permission denied.")
       );
+    }
+  }
+
+  async function injectDemoData() {
+    if(confirm("Ready for the VIP Demo? This will clear test data and load the official high-quality presentation data.")) {
+      try {
+        await fetch("http://localhost:5000/demo/seed", { method: "POST" });
+        loadComplaints();
+        alert("Demo data loaded successfully!");
+      } catch(e) { alert("Error loading demo data."); }
     }
   }
 
@@ -261,28 +261,17 @@
     } catch (e) {}
   }
 
-  // --- Prototype: Simulate Fix ---
   async function simulateFix(id) {
-    try {
-      await fetch(`http://localhost:5000/complaint/${id}/simulate-resolve`, { method: "PATCH" });
-      loadComplaints(); 
-    } catch (e) { console.error("Simulate failed", e); }
+    try { await fetch(`http://localhost:5000/complaint/${id}/simulate-resolve`, { method: "PATCH" }); loadComplaints(); } catch (e) {}
   }
 
-  // --- Submit Rating ---
   async function submitRating(id) {
     const form = document.getElementById(`rate-form-${id}`);
     const rating = form.querySelector('input[name="rating"]:checked')?.value;
     const feedbackText = form.querySelector('textarea').value;
-
     if(!rating) return alert("Please select a star rating!");
-
     try {
-      await fetch(`http://localhost:5000/complaint/${id}/rate`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rating: Number(rating), feedbackText })
-      });
+      await fetch(`http://localhost:5000/complaint/${id}/rate`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rating: Number(rating), feedbackText }) });
       loadComplaints(); 
     } catch (e) {}
   }
@@ -293,6 +282,11 @@
   const map = L.map('cityMap').setView([26.8467, 80.9462], 12); 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
   const markerGroup = L.layerGroup().addTo(map);
+
+  function getImageUrl(url) {
+    if(!url) return '';
+    return url.startsWith('http') ? url : `http://localhost:5000/uploads/${url.split(/[\\/]/).pop()}`;
+  }
 
   async function loadComplaints() {
     try {
@@ -305,76 +299,84 @@
       markerGroup.clearLayers(); 
 
       let typeCounts = { 'Pothole': 0, 'Bridge Crack': 0, 'Drainage Block': 0, 'Broken Streetlight': 0 };
-      let notifCount = 0;
-      let totalRatings = 0;
-      let ratedItems = 0;
+      let notifCount = 0; let totalRatings = 0; let ratedItems = 0;
 
       data.sort((a, b) => b.upvotes - a.upvotes || new Date(b.createdAt) - new Date(a.createdAt));
 
       data.forEach(c => { 
-        let badgeClass = c.status === "Resolved" ? "status-resolved" : "status-pending";
-        let imgHtml = c.imageUrl ? `<img src="http://localhost:5000/uploads/${c.imageUrl.split(/[\\/]/).pop()}" alt="Evidence" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">` : '';
+        let badgeClass = c.status === "Resolved" ? "status-resolved" : (c.status === "InProgress" ? "status-inprogress" : "status-pending");
+        let displayStatus = c.status === "InProgress" ? "In Progress" : c.status;
+        
+        let submitDate = new Date(c.createdAt);
+        let formattedDate = submitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        
+        // Calculate "Days Untouched"
+        let daysUntouched = Math.floor((new Date() - submitDate) / (1000 * 60 * 60 * 24));
+        let untouchedText = daysUntouched === 0 ? "Posted Today" : `${daysUntouched} Days Pending`;
+        if(c.status === "Resolved") untouchedText = "Resolved";
+        
+        let imgSrc = getImageUrl(c.imageUrl);
+        let thumbnailHtml = imgSrc ? `<img src="${imgSrc}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; border:1px solid #eee; flex-shrink:0;">` : '';
 
-        // 1. POPULATE COMMUNITY FEED
-        let dateObj = new Date(c.createdAt);
-        let formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-
+        // 1. COMMUNITY FEED - Now Expandable on Click!
         document.getElementById("reportsList").innerHTML += `
-          <div class="report-item" id="feed-item-${c._id}">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <strong style="font-size: 16px; display:block;">${c.damageType}</strong>
-                <span style="color: #9aa0a6; font-size: 13px;">${c.severity || 'Not Specified'} Severity • 📍 ${c.areaName}</span>
-                <span style="color: #9aa0a6; font-size: 11px; display:block; margin-top:2px;">🕒 Posted on ${formattedDate}</span>
+          <div class="report-item" id="feed-item-${c._id}" style="margin-bottom:15px;" onclick="toggleFeedDetails('${c._id}', event)">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+              <div style="display:flex; gap:12px; align-items:center;">
+                ${thumbnailHtml}
+                <div>
+                  <strong style="font-size: 15px;">${c.damageType}</strong>
+                  <div style="color: #5f6368; font-size: 12px; margin-top:2px;">📍 ${c.areaName} • <span style="color:#d93025;">${untouchedText}</span></div>
+                </div>
               </div>
-              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                <span class="status-badge ${badgeClass}">${c.status}</span>
-                <button onclick="upvoteIssue('${c._id}', this)" class="upvote-btn">
-                  ⬆️ <span class="vote-count">${c.upvotes || 0}</span>
-                </button>
+              <span class="status-badge ${badgeClass}">${displayStatus}</span>
+            </div>
+
+            <div id="detail-${c._id}" style="display:none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              ${imgSrc ? `<img src="${imgSrc}" style="width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px;">` : ''}
+              <div style="background:#f8f9fa; padding:12px; border-radius:8px; font-size:13px; color:#444; font-style:italic; margin-bottom:12px; border-left:3px solid var(--accent-color);">
+                "${c.complaintText || 'No description provided.'}"
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; color: #5f6368; margin-bottom: 12px;">
+                <div><strong>🏢 Assigned To:</strong> ${c.contractorName || 'Pending'}</div>
+                <div><strong>📅 Submitted:</strong> ${formattedDate}</div>
+                <div><strong>⏳ Target Start:</strong> ${c.estimatedStartDate}</div>
+                <div><strong>⚠️ Severity:</strong> ${c.severity}</div>
               </div>
             </div>
 
-            <div style="background: #f8f9fa; padding: 14px; border-radius: 8px; border: 1px solid #eaeaea;">
-              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; color: #5f6368;">
-                <span style="flex:1;"><strong>Status Update:</strong> ${c.latestUpdate || 'Report logged.'}</span>
-                <span style="text-align:right;"><strong>Est. Start:</strong> ${c.estimatedStartDate || 'TBD'}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; background: #f8f9fa; padding: 10px 14px; border-radius: 8px;">
+              <div style="width: 60%; background: #e0e0e0; height: 6px; border-radius: 3px; overflow: hidden; position: relative;">
+                <div style="width: ${c.status === 'Resolved' ? 100 : c.progressPercentage}%; background: ${c.status === 'Resolved' ? '#1e8e3e' : 'var(--accent-color)'}; height: 100%;"></div>
               </div>
-              
-              <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                <div style="width: ${c.status === 'Resolved' ? 100 : (c.progressPercentage || 0)}%; background: ${c.status === 'Resolved' ? '#1e8e3e' : 'var(--accent-color)'}; height: 100%; transition: width 0.5s ease;"></div>
-              </div>
-              <div style="text-align: right; font-size: 11px; color: #9aa0a6; margin-top: 4px; font-weight:bold;">${c.status === 'Resolved' ? '100% Complete' : (c.progressPercentage || 0) + '% Complete'}</div>
+              <button onclick="upvoteIssue('${c._id}', this)" class="upvote-btn">⬆️ <span class="vote-count">${c.upvotes || 0}</span></button>
             </div>
           </div>
         `;
 
-        // 2. POPULATE TRACK & RATE TAB
+        // 2. TRACK & RATE TAB
         if (c.status !== "Resolved") {
           document.getElementById("trackingList").innerHTML += `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-              <div><strong>${c.damageType}</strong> - 📍 ${c.areaName}<br><span class="status-badge status-pending" style="margin-top:5px;">Pending Fix</span></div>
-              <button onclick="simulateFix('${c._id}')" style="background:#ea4335; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">🛠️ Demo: Simulate Fix</button>
+              <div><strong>${c.damageType}</strong> - 📍 ${c.areaName}<br><span class="status-badge ${badgeClass}" style="margin-top:5px;">${displayStatus}</span></div>
+              <button onclick="simulateFix('${c._id}')" style="background:#ea4335; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">🛠️ Demo Contractor Fix</button>
             </div>
           `;
         } else {
           if(!c.rating) {
             notifCount++;
-            document.getElementById("notifList").innerHTML += `<div class="notif-item" onclick="switchTab('tracking')">✅ <strong>${c.damageType}</strong> at ${c.areaName} was resolved! Please verify and rate the contractor.</div>`;
-            
+            document.getElementById("notifList").innerHTML += `<div class="notif-item" onclick="switchTab('tracking')">✅ <strong>${c.damageType}</strong> at ${c.areaName} was resolved! Verify and rate.</div>`;
             document.getElementById("trackingList").innerHTML += `
               <div class="card" style="border-left: 4px solid var(--accent-color);">
                 <div style="display:flex; justify-content:space-between;">
                   <div><strong>Action Required: Verify Resolution</strong><br><span style="font-size:13px; color:#5f6368;">${c.damageType} at ${c.areaName}</span></div>
                   <span class="status-badge status-resolved">Awaiting Your Rating</span>
                 </div>
-                
                 <div class="proof-images">
-                  <div><span style="font-size:12px; font-weight:bold; color:#5f6368;">BEFORE</span><br>${c.imageUrl ? `<img src="http://localhost:5000/uploads/${c.imageUrl.split(/[\\/]/).pop()}">` : 'No Image'}</div>
+                  <div><span style="font-size:12px; font-weight:bold; color:#5f6368;">BEFORE</span><br>${imgSrc ? `<img src="${imgSrc}">` : 'No Image'}</div>
                   <div><span style="font-size:12px; font-weight:bold; color:#1e8e3e;">AFTER (Contractor Proof)</span><br><img src="${c.resolutionImageUrl}"></div>
                 </div>
-                <p style="font-size:13px; background:#f8f9fa; padding:10px; border-radius:6px;"><strong>Contractor Note:</strong> "${c.resolutionText}"</p>
-
                 <form id="rate-form-${c._id}" style="margin-top:15px; border-top:1px solid #eee; padding-top:15px;">
                   <strong style="font-size:14px;">Rate the repair quality:</strong>
                   <div class="star-rating">
@@ -394,30 +396,44 @@
             document.getElementById("trackingList").innerHTML += `
               <div class="card" style="opacity: 0.8;">
                 <div style="display:flex; justify-content:space-between;">
-                  <div><strong>${c.damageType}</strong> - 📍 ${c.areaName}</div>
-                  <span style="color:#fbbc04; font-weight:bold;">Rated ${c.rating} / 5 Stars ★</span>
+                  <div><strong>${c.damageType}</strong> - 📍 ${c.areaName}</div><span style="color:#fbbc04; font-weight:bold;">Rated ${c.rating} / 5 Stars ★</span>
                 </div>
-                <div style="font-size:13px; margin-top:8px; color:#5f6368;">Your Feedback: "${c.feedbackText}"</div>
+                <div style="font-size:13px; margin-top:8px; color:#5f6368;">Feedback: "${c.feedbackText}"</div>
               </div>
             `;
           }
         }
 
+        // 3. MAP POPUPS (Updated with new detailed info!)
         if (c.latitude && c.longitude) {
-          const mapIcon = L.divIcon({ className: 'custom-icon', html: `<div style="font-size: 28px;">📍</div>`, iconSize: [30, 30] });
-          L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup).bindPopup(`<strong>${c.damageType}</strong><br>📍 ${c.areaName}<br><button onclick="viewInFeed('${c._id}')" style="margin-top:5px; cursor:pointer;">View Feed</button>`);
+          const mapIcon = L.divIcon({ className: 'custom-icon', html: `<div style="font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">📍</div>`, iconSize: [30, 30] });
+          let popupContent = `
+            <div style="width: 240px; font-family: sans-serif;">
+              ${imgSrc ? `<img src="${imgSrc}" style="width:100%; height:130px; object-fit:cover; border-radius:6px; margin-bottom:8px;">` : ''}
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size: 15px;">${c.damageType}</strong>
+                <span style="font-size:10px; font-weight:bold; background:#fce8e6; color:#d93025; padding:2px 6px; border-radius:10px;">${untouchedText}</span>
+              </div>
+              <span style="color: #5f6368; font-size: 12px; display:block; margin-bottom:8px;">📍 ${c.areaName}</span>
+              
+              <div style="background:#f8f9fa; padding:8px; border-radius:6px; font-size:12px; font-style:italic; color:#444; border-left:2px solid var(--accent-color);">
+                "${c.complaintText.substring(0,80)}${c.complaintText.length > 80 ? '...' : ''}"
+              </div>
+              
+              <div style="font-size: 11px; color: #5f6368; margin-top: 8px;"><strong>🏢 Contractor:</strong> ${c.contractorName || 'Pending'}</div>
+              <button onclick="viewInFeed('${c._id}')" style="margin-top:10px; width:100%; padding:8px; background:var(--accent-color); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">View Full Detail in Feed</button>
+            </div>
+          `;
+          L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup).bindPopup(popupContent);
         }
+        
         if (typeCounts[c.damageType] !== undefined) typeCounts[c.damageType]++;
       });
 
       const badge = document.getElementById("notifCount");
-      if(notifCount > 0) { badge.style.display = "flex"; badge.innerText = notifCount; } 
-      else { badge.style.display = "none"; document.getElementById("notifList").innerHTML = "No new alerts.";}
+      if(notifCount > 0) { badge.style.display = "flex"; badge.innerText = notifCount; } else { badge.style.display = "none"; document.getElementById("notifList").innerHTML = "No new alerts.";}
 
-      if(ratedItems > 0) {
-        let avgScore = ((totalRatings / (ratedItems * 5)) * 100).toFixed(0);
-        document.getElementById("contractorScore").innerText = `${avgScore}%`;
-      }
+      if(ratedItems > 0) { document.getElementById("contractorScore").innerText = `${((totalRatings / (ratedItems * 5)) * 100).toFixed(0)}%`; }
 
       document.getElementById("totalReports").innerText = data.length;
       document.getElementById("pendingReports").innerText = data.filter(c => c.status !== "Resolved").length;
@@ -429,131 +445,52 @@
     } catch (error) { console.log(error); }
   }
 
-  // --- UPDATED: Modern AI Verification Animation ---
   function animateScore(targetScore, statusClass) {
-    let current = 0;
-    const scoreEl = document.getElementById("scoreDisplay");
-    scoreEl.style.display = "block";
-    
-    // Set color based on final result
-    if (statusClass === "success") scoreEl.style.color = "#1e8e3e";
-    else if (statusClass === "warning") scoreEl.style.color = "#b06000";
-    else if (statusClass === "error") scoreEl.style.color = "#d93025";
-    else scoreEl.style.color = "#1a73e8";
-
+    let current = 0; const scoreEl = document.getElementById("scoreDisplay"); scoreEl.style.display = "block";
+    if (statusClass === "success") scoreEl.style.color = "#1e8e3e"; else if (statusClass === "warning") scoreEl.style.color = "#b06000"; else scoreEl.style.color = "#d93025";
     const interval = setInterval(() => {
       current += 2;
-      if (current >= targetScore) {
-        scoreEl.innerText = targetScore + "% Match";
-        clearInterval(interval);
-      } else {
-        scoreEl.innerText = current + "%";
-      }
+      if (current >= targetScore) { scoreEl.innerText = targetScore + "% Match"; clearInterval(interval); } else { scoreEl.innerText = current + "%"; }
     }, 20);
   }
 
-  function closeOverlay() {
-    document.getElementById("processingOverlay").style.display = "none";
-    document.getElementById("closeOverlayBtn").style.display = "none";
-    switchTab('overview');
-  }
+  function closeOverlay() { document.getElementById("processingOverlay").style.display = "none"; switchTab('overview'); }
 
   document.getElementById("complaintForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const formElement = e.target;
-    const formData = new FormData(formElement);
-    
-    // 1. Show the modern overlay
+    const formElement = e.target; const formData = new FormData(formElement);
     document.getElementById("processingOverlay").style.display = "flex";
-    
-    // Reset UI
-    document.getElementById("aiIcon").innerText = "✨";
-    document.getElementById("aiIcon").style.animation = "pulseGlow 2s infinite";
+    document.getElementById("aiIcon").innerText = "✨"; document.getElementById("aiIcon").style.animation = "pulseGlow 2s infinite";
     document.getElementById("scoreDisplay").style.display = "none";
-    document.getElementById("scoreDisplay").style.color = "#202124";
-
-    document.getElementById("step1").className = "step-row active";
-    document.getElementById("step1-icon").innerText = "⚙️";
-    document.getElementById("step1-status").innerText = "Analyzing...";
-    
-    document.getElementById("step2").className = "step-row";
-    document.getElementById("step2-icon").innerText = "⏳";
-    document.getElementById("step2-status").innerText = "Waiting...";
-    
-    document.getElementById("finalResult").style.display = "none";
+    document.getElementById("step1").className = "step-row active"; document.getElementById("step1-status").innerText = "Analyzing...";
+    document.getElementById("step2").className = "step-row"; document.getElementById("step2-status").innerText = "Waiting...";
+    document.getElementById("finalResult").style.display = "none"; document.getElementById("closeOverlayBtn").style.display = "none";
 
     try {
-      await new Promise(r => setTimeout(r, 1200));
-
+      await new Promise(r => setTimeout(r, 1000));
       const res = await fetch("http://localhost:5000/complaint", { method: "POST", body: formData });
       const result = await res.json();
+      let statusClass = result.status === "success" ? "success" : (result.status === "duplicate" ? "warning" : "error");
 
-      let mainStatusClass = "success";
-      if (result.status === "duplicate") mainStatusClass = "warning";
-      if (result.status === "rejected") mainStatusClass = "error";
-      if (result.status === "review") mainStatusClass = "warning";
-
-      // 2. Animate the AI Score
-      document.getElementById("step1").className = `step-row ${mainStatusClass}`;
-      document.getElementById("step1-icon").innerText = "✅";
-      document.getElementById("step1-status").innerText = "Complete";
-      animateScore(result.confidenceScore, mainStatusClass);
-      
-      await new Promise(r => setTimeout(r, 1500));
-
-      // 3. Animate the Geo-Fence Scan
-      document.getElementById("step2").className = "step-row active";
-      document.getElementById("step2-icon").innerText = "📍";
-      document.getElementById("step2-status").innerText = "Scanning Area...";
-      
+      document.getElementById("step1").className = `step-row ${statusClass}`; document.getElementById("step1-status").innerText = "Complete";
+      animateScore(result.confidenceScore, statusClass);
       await new Promise(r => setTimeout(r, 1200));
 
-      // 4. Show the Final Result
-      const finalRow = document.getElementById("finalResult");
-      const finalMsg = document.getElementById("finalMessage");
-      
-      finalRow.style.display = "flex";
-      finalMsg.innerText = result.message;
+      document.getElementById("step2").className = "step-row active"; document.getElementById("step2-status").innerText = "Scanning...";
+      await new Promise(r => setTimeout(r, 1000));
 
-      // Stop the sparkle animation
+      document.getElementById("finalResult").style.display = "flex"; document.getElementById("finalMessage").innerText = result.message;
       document.getElementById("aiIcon").style.animation = "none";
 
       if (result.status === "duplicate") {
-        document.getElementById("aiIcon").innerText = "⚠️";
-        document.getElementById("step2").className = "step-row warning";
-        document.getElementById("step2-icon").innerText = "⚠️";
-        document.getElementById("step2-status").innerText = "Match Found";
-        finalRow.className = "step-row warning";
-      } else if (result.status === "rejected") {
-        document.getElementById("aiIcon").innerText = "❌";
-        document.getElementById("step2").className = "step-row error";
-        document.getElementById("step2-icon").innerText = "❌";
-        document.getElementById("step2-status").innerText = "Aborted";
-        finalRow.className = "step-row error";
-      } else if (result.status === "review") {
-        document.getElementById("aiIcon").innerText = "🛡️";
-        document.getElementById("step2").className = "step-row success";
-        document.getElementById("step2-icon").innerText = "✅";
-        document.getElementById("step2-status").innerText = "Clear";
-        finalRow.className = "step-row warning";
+        document.getElementById("aiIcon").innerText = "⚠️"; document.getElementById("step2").className = "step-row warning"; document.getElementById("step2-status").innerText = "Match Found"; document.getElementById("finalResult").className = "step-row warning";
       } else {
-        document.getElementById("aiIcon").innerText = "✅";
-        document.getElementById("step2").className = "step-row success";
-        document.getElementById("step2-icon").innerText = "✅";
-        document.getElementById("step2-status").innerText = "Clear";
-        finalRow.className = "step-row success";
+        document.getElementById("aiIcon").innerText = "✅"; document.getElementById("step2").className = "step-row success"; document.getElementById("step2-status").innerText = "Clear"; document.getElementById("finalResult").className = "step-row success";
       }
 
       document.getElementById("closeOverlayBtn").style.display = "block";
-      
-      formElement.reset(); 
-      loadComplaints();
-
-    } catch (error) { 
-      console.error(error); 
-      alert("System Error. Please try again.");
-      closeOverlay();
-    }
+      formElement.reset(); loadComplaints();
+    } catch (error) { alert("Error"); closeOverlay(); }
   });
 
   loadComplaints();

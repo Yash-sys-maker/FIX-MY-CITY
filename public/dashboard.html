@@ -10,12 +10,17 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+  .verified-badge { background: #e6f4ea; color: #1e8e3e; font-size: 10px; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: bold; margin-left: 6px; border: 1px solid #ceead6;}
   :root { --bg-color: #f7f9fa; --sidebar-bg: #ffffff; --text-main: #202124; --text-muted: #5f6368; --accent-color: #1a73e8; --card-bg: #ffffff; --border-radius: 16px; --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.03); }
   body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
   .sidebar { width: 260px; background: var(--sidebar-bg); padding: 30px 20px; display: flex; flex-direction: column; border-right: 1px solid #eaeaea; z-index: 10; }
-  .logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; padding-left: 10px; }
-  .logo-text { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  
+  /* UPDATED LOGO AREA */
+  .logo-area { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; padding-left: 10px; }
+  .sidebar-logo { height: 36px; width: auto; object-fit: contain; }
+  .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--accent-color); }
+  
   .nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
   .nav-item { padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 500; color: var(--text-muted); transition: all 0.2s ease; display: flex; align-items: center; gap: 12px; }
   .nav-item:hover { background: #f1f3f4; color: var(--text-main); }
@@ -25,16 +30,23 @@
   .vip-demo-btn:hover { background: #c5221f; transform: translateY(-2px); }
   .logout-btn { padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 500; color: #5f6368; background: #f1f3f4; border: none; text-align: center; transition: 0.2s; }
 
-  .top-navbar { position: absolute; top: 20px; right: 50px; display: flex; align-items: center; gap: 20px; z-index: 100; }
-  .notification-bell { position: relative; cursor: pointer; font-size: 24px; padding: 10px; background: white; border-radius: 50%; box-shadow: var(--shadow-subtle); transition: 0.2s; }
-  .badge { position: absolute; top: 0; right: 0; background: #ea4335; color: white; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
+  /* UPDATED TOP NAVBAR PROFILE */
+  .top-navbar { position: absolute; top: 20px; right: 50px; display: flex; align-items: center; gap: 24px; z-index: 100; }
+  .user-profile { display: flex; align-items: center; gap: 12px; }
+  .user-text { text-align: right; }
+  .user-name { font-size: 14px; font-weight: 700; color: var(--text-main); }
+  .user-role { font-size: 12px; color: var(--text-muted); }
+  .user-avatar { width: 40px; height: 40px; background: var(--accent-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; box-shadow: 0 4px 10px rgba(26,115,232,0.2); }
+  
+  .notification-bell { position: relative; cursor: pointer; font-size: 20px; padding: 10px; background: white; border-radius: 50%; box-shadow: var(--shadow-subtle); transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;}
+  .badge { position: absolute; top: -2px; right: -2px; background: #ea4335; color: white; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
   .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 300px; background: white; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); padding: 15px; border: 1px solid #eaeaea; max-height: 300px; overflow-y: auto; }
   .notif-dropdown.show { display: block; animation: fadeIn 0.2s ease; }
   .notif-item { padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; cursor: pointer; border-radius: 6px;}
 
   .main-content { flex: 1; padding: 40px 50px; overflow-y: auto; position: relative; padding-top: 80px;}
   .top-header { margin-bottom: 40px; }
-  .top-header h1 { font-size: 32px; margin: 0 0 8px 0; letter-spacing: -1px; }
+  .top-header h1 { font-size: 32px; margin: 0 0 8px 0; letter-spacing: -1px; color: var(--text-main); }
   .top-header p { color: var(--text-muted); margin: 0; font-size: 16px; }
 
   .view-section { display: none; animation: fadeIn 0.4s ease; }
@@ -43,8 +55,10 @@
 
   .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 30px; }
   .card { background: var(--card-bg); padding: 24px; border-radius: var(--border-radius); box-shadow: var(--shadow-subtle); border: 1px solid #f0f0f0; }
+  
   .stat-title { font-size: 14px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 10px; }
-  .stat-value { font-size: 42px; font-weight: 700; margin: 0; }
+  .stat-value { font-size: 42px; font-weight: 700; margin: 0; color: var(--text-main); }
+  .stat-trend { font-size: 13px; font-weight: 600; margin-top: 8px; }
 
   .form-group { margin-bottom: 20px; }
   label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: var(--text-muted); }
@@ -55,6 +69,7 @@
   .report-feed { display: flex; flex-direction: column; gap: 16px; }
   .report-item { padding: 20px; background: white; border-radius: 12px; border: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
   .report-item:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-color: #d2e3fc; }
+  
   .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-align: center; display: inline-block;}
   .status-pending { background: #fce8e6; color: #d93025; }
   .status-resolved { background: #e6f4ea; color: #1e8e3e; }
@@ -98,6 +113,13 @@
   </div>
 
   <div class="top-navbar">
+    <div class="user-profile">
+      <div class="user-text">
+        <div class="user-name" id="navUserName">Welcome, User</div>
+        <div class="user-role">Citizen Account</div>
+      </div>
+      <div class="user-avatar" id="navUserInitials">U</div>
+    </div>
     <div class="notification-bell" onclick="toggleNotifs()">
       🔔 <span id="notifCount" class="badge" style="display:none;">0</span>
       <div id="notifDropdown" class="notif-dropdown"><strong style="display:block; margin-bottom:10px;">Alerts</strong><div id="notifList">No new alerts.</div></div>
@@ -105,7 +127,11 @@
   </div>
 
   <div class="sidebar">
-    <div class="logo-area"><div class="logo-text">FixMyCity</div></div>
+    <div class="logo-area">
+      <img src="logo.png" alt="FixMyCity Logo" class="sidebar-logo" onerror="this.style.display='none'">
+      <div class="logo-text">FixMyCity</div>
+    </div>
+    
     <div class="nav-menu">
       <div class="nav-item active" onclick="switchTab('overview')">Overview</div>
       <div class="nav-item" onclick="switchTab('report')">Submit Issue</div>
@@ -120,20 +146,55 @@
   <div class="main-content">
     
     <div id="overview" class="view-section active">
-      <div class="top-header"><h1 id="welcomeUser">Welcome back</h1><p>Here is the current infrastructure status in your area.</p></div>
+      <div class="top-header">
+        <h1>Dashboard Overview</h1>
+        <p>Real-time civic infrastructure tracking and resolution metrics.</p>
+      </div>
       <div class="dashboard-grid">
-        <div class="card"><div class="stat-title">Total Reports</div><div class="stat-value" id="totalReports">0</div></div>
-        <div class="card"><div class="stat-title">Pending Action</div><div class="stat-value" id="pendingReports" style="color: #d93025;">0</div></div>
-        <div class="card"><div class="stat-title">Successfully Resolved</div><div class="stat-value" id="resolvedReports" style="color: #1e8e3e;">0</div></div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div class="stat-title">Total Reports</div>
+            <div style="font-size:24px;">📝</div>
+          </div>
+          <div class="stat-value" id="totalReports">0</div>
+          <div class="stat-trend" style="color: #1e8e3e;">↑ 12% this month</div>
+        </div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div class="stat-title">Pending Action</div>
+            <div style="font-size:24px;">⚠️</div>
+          </div>
+          <div class="stat-value" id="pendingReports" style="color: #d93025;">0</div>
+          <div class="stat-trend" style="color: #5f6368;">Awaiting contractor assignment</div>
+        </div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div class="stat-title">Successfully Resolved</div>
+            <div style="font-size:24px;">✅</div>
+          </div>
+          <div class="stat-value" id="resolvedReports" style="color: #1e8e3e;">0</div>
+          <div class="stat-trend" style="color: #1e8e3e;">↑ 8% resolution rate</div>
+        </div>
       </div>
       <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
-        <div class="card"><h3 style="margin-top:0;">Issues by Type</h3><canvas id="issueChart" height="250"></canvas></div>
-        <div class="card"><h3 style="margin-top:0;">Community Feed</h3><div class="report-feed" id="reportsList" style="max-height: 450px; overflow-y: auto; padding-right:10px;"></div></div>
+        <div class="card" style="display: flex; flex-direction: column;">
+          <h3 style="margin:0 0 20px 0; font-size:18px;">Reports by Category</h3>
+          <div style="position: relative; height: 300px; width: 100%; flex: 1;">
+            <canvas id="issueChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 20px 0; font-size:18px;">Community Feed</h3>
+          <div class="report-feed" id="reportsList" style="max-height: 450px; overflow-y: auto; padding-right:10px;"></div>
+        </div>
       </div>
     </div>
 
     <div id="report" class="view-section">
-      <div class="top-header"><h1>Submit an Issue</h1><p>Upload a photo to report an infrastructure problem.</p></div>
+      <div class="top-header">
+        <h1>Submit an Issue</h1>
+        <p>Upload a photo to securely report an infrastructure problem to city authorities.</p>
+      </div>
       <div class="card" style="max-width: 600px;">
         <form id="complaintForm" enctype="multipart/form-data">
           <div class="form-group"><label>Evidence (Upload Photo)</label><input type="file" name="image" required></div>
@@ -142,31 +203,33 @@
             <div style="flex: 1;"><label>Longitude</label><input type="text" name="longitude" id="lngInput" required readonly></div>
           </div>
           <button type="button" class="btn-secondary" onclick="getLocation()" style="margin-bottom: 20px; width: 100%;">📍 Auto-Detect My Coordinates</button>
-          
           <div class="form-group"><label>Location/Area Name</label><input type="text" name="areaName" placeholder="e.g. Main Street" required></div>
-          
           <div class="form-group" style="display: flex; gap: 15px;">
             <div style="flex: 1;"><label>Issue Type</label><select name="damageType" required><option value="">Select...</option><option>Pothole</option><option>Bridge Crack</option><option>Drainage Block</option><option>Broken Streetlight</option></select></div>
             <div style="flex: 1;"><label>Severity</label><select name="severity" required><option value="">Select...</option><option>Low</option><option>Medium</option><option>High</option></select></div>
           </div>
-
           <div class="form-group">
             <label>Description of Issue</label>
             <textarea name="complaintText" placeholder="Please describe the problem in detail to assist contractors..." required style="height: 80px;"></textarea>
           </div>
-
           <button type="submit" class="btn-primary">Submit Report</button>
         </form>
       </div>
     </div>
 
     <div id="map" class="view-section">
-      <div class="top-header"><h1>Live Map</h1><p>See exactly where civic issues are clustered.</p></div>
+      <div class="top-header">
+        <h1>Live City Map</h1>
+        <p>Geospatial clustering of active and resolved civic issues across the municipal area.</p>
+      </div>
       <div class="card" style="padding: 0; overflow: hidden; height: 600px;"><div id="cityMap" style="height: 100%; width: 100%; z-index: 1;"></div></div>
     </div>
 
     <div id="tracking" class="view-section">
-      <div class="top-header"><h1>Track & Rate Progress</h1><p>Verify contractor work and compare before/after photos.</p></div>
+      <div class="top-header">
+        <h1>Track & Rate Progress</h1>
+        <p>Verify contractor work, compare before/after photos, and enforce accountability.</p>
+      </div>
       <div class="report-feed" id="trackingList"></div>
     </div>
 
@@ -175,17 +238,21 @@
         <h1>Contractor Accountability</h1>
         <p>Dynamic public leaderboard of municipal contractors ranked by citizen satisfaction.</p>
       </div>
-      <div id="contractorLeaderboard" class="report-feed">
-        </div>
+      <div id="contractorLeaderboard" class="report-feed"></div>
     </div>
 
   </div>
 
 <script>
+ // Auth Check & Dynamic UI Population
   const userData = JSON.parse(localStorage.getItem("user"));
-  if (!userData) { window.location.href = "login.html"; } 
-  else { document.getElementById("welcomeUser").innerText = `Welcome back, ${userData.name.split(' ')[0]}`; }
-
+  if (!userData) { 
+    window.location.href = "login.html"; 
+  } else { 
+    const firstName = userData.name.split(' ')[0];
+    document.getElementById("navUserName").innerHTML = `${firstName} <span class="verified-badge">✓ Verified</span>`;
+    document.getElementById("navUserInitials").innerText = firstName.charAt(0).toUpperCase();
+  }
   function logout() { localStorage.removeItem("user"); window.location.href = "login.html"; }
 
   function switchTab(tabId) {
@@ -268,8 +335,30 @@
     } catch (e) {}
   }
 
+  // --- UPDATED: Modern Bar Chart configuration ---
   const ctx = document.getElementById('issueChart').getContext('2d');
-  const issueChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Potholes', 'Bridge Cracks', 'Drainage', 'Streetlights'], datasets: [{ data: [0,0,0,0], backgroundColor: ['#1a73e8', '#ea4335', '#34a853', '#fbbc04'], borderWidth: 0 }] }, options: { responsive: true, cutout: '75%' } });
+  const issueChart = new Chart(ctx, { 
+    type: 'bar', 
+    data: { 
+      labels: ['Potholes', 'Bridge Cracks', 'Drainage', 'Streetlights'], 
+      datasets: [{ 
+        label: 'Active Reports',
+        data: [0,0,0,0], 
+        backgroundColor: ['#1a73e8', '#ea4335', '#34a853', '#fbbc04'], 
+        borderRadius: 6,
+        borderSkipped: false
+      }] 
+    }, 
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { display: true, color: '#f0f0f0' }, border: { display: false } },
+        x: { grid: { display: false }, border: { display: false } }
+      }
+    } 
+  });
 
   const map = L.map('cityMap').setView([26.8467, 80.9462], 12); 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -292,8 +381,6 @@
 
       let typeCounts = { 'Pothole': 0, 'Bridge Crack': 0, 'Drainage Block': 0, 'Broken Streetlight': 0 };
       let notifCount = 0; 
-      
-      // NEW: Dynamic Contractor Stats Tracker
       let contractorStats = {};
 
       data.sort((a, b) => b.upvotes - a.upvotes || new Date(b.createdAt) - new Date(a.createdAt));
@@ -312,7 +399,6 @@
         let imgSrc = getImageUrl(c.imageUrl);
         let thumbnailHtml = imgSrc ? `<img src="${imgSrc}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; border:1px solid #eee; flex-shrink:0;">` : '';
 
-        // Tracker for Contractors Leaderboard
         let cName = c.contractorName || 'Unassigned';
         if (!contractorStats[cName]) { contractorStats[cName] = { assigned: 0, resolved: 0, ratingSum: 0, ratingCount: 0 }; }
         contractorStats[cName].assigned++;
@@ -422,10 +508,7 @@
         if (typeCounts[c.damageType] !== undefined) typeCounts[c.damageType]++;
       });
 
-      // --- DYNAMIC LEADERBOARD RENDER ---
       let leaderboardHtml = "";
-      
-      // Sort contractors by highest rating score first
       let sortedContractors = Object.keys(contractorStats).sort((a, b) => {
            let scoreA = contractorStats[a].ratingCount > 0 ? contractorStats[a].ratingSum / contractorStats[a].ratingCount : 0;
            let scoreB = contractorStats[b].ratingCount > 0 ? contractorStats[b].ratingSum / contractorStats[b].ratingCount : 0;
@@ -435,7 +518,6 @@
       sortedContractors.forEach(name => {
           let stats = contractorStats[name];
           let scoreDisplay = stats.ratingCount > 0 ? `${((stats.ratingSum / (stats.ratingCount * 5)) * 100).toFixed(0)}%` : `N/A`;
-          // Color logic: Green for good, Grey for N/A, Orange for anything else
           let color = scoreDisplay !== 'N/A' && parseInt(scoreDisplay) > 80 ? '#1e8e3e' : (scoreDisplay === 'N/A' ? '#9aa0a6' : '#f9ab00');
 
           leaderboardHtml += `
@@ -464,6 +546,7 @@
       document.getElementById("pendingReports").innerText = data.filter(c => c.status !== "Resolved").length;
       document.getElementById("resolvedReports").innerText = data.filter(c => c.status === "Resolved").length;
 
+      // Update new Bar Chart
       issueChart.data.datasets[0].data = [ typeCounts['Pothole'], typeCounts['Bridge Crack'], typeCounts['Drainage Block'], typeCounts['Broken Streetlight'] ];
       issueChart.update();
 

@@ -23,9 +23,16 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// User Schema
+// User Schema (Upgraded with KYC)
 const userSchema = new mongoose.Schema({
-  name: String, email: { type: String, unique: true }, password: String, createdAt: { type: Date, default: Date.now }
+  name: String, 
+  email: { type: String, unique: true }, 
+  password: String, 
+  phone: String,
+  aadhar: String,
+  ward: String,
+  isVerified: { type: Boolean, default: true }, // Automatically true for demo
+  createdAt: { type: Date, default: Date.now }
 });
 const User = mongoose.model("User", userSchema);
 

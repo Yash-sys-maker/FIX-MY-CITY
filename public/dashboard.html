@@ -53,11 +53,8 @@
   button.btn-secondary { padding: 12px 18px; border: 1px solid #ddd; border-radius: 8px; background: white; color: var(--text-main); font-size: 14px; cursor: pointer; margin-top: 10px; }
 
   .report-feed { display: flex; flex-direction: column; gap: 16px; }
-  
-  /* Upgraded Report Item for Hover & Click */
   .report-item { padding: 20px; background: white; border-radius: 12px; border: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
   .report-item:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-color: #d2e3fc; }
-  
   .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-align: center; display: inline-block;}
   .status-pending { background: #fce8e6; color: #d93025; }
   .status-resolved { background: #e6f4ea; color: #1e8e3e; }
@@ -174,13 +171,12 @@
     </div>
 
     <div id="transparency" class="view-section">
-      <div class="top-header"><h1>Contractor Accountability</h1><p>Public ledger of municipal contractors and their scores.</p></div>
-      <div class="card">
-        <div style="display: flex; flex-direction: row; align-items:center;">
-          <div><strong style="font-size: 18px;">ABC Infra Pvt Ltd</strong><div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Assigned Area: City Center</div></div>
-          <div style="text-align: right; flex: 1;"><div style="font-size: 28px; font-weight: bold; color: #1e8e3e;" id="contractorScore">92%</div><div style="color: var(--text-muted); font-size: 12px;">Citizen Satisfaction Score</div></div>
-        </div>
+      <div class="top-header">
+        <h1>Contractor Accountability</h1>
+        <p>Dynamic public leaderboard of municipal contractors ranked by citizen satisfaction.</p>
       </div>
+      <div id="contractorLeaderboard" class="report-feed">
+        </div>
     </div>
 
   </div>
@@ -202,11 +198,8 @@
 
   function toggleNotifs() { document.getElementById('notifDropdown').classList.toggle('show'); }
 
-  // --- NEW: Toggle the rich data view inside the Feed ---
   function toggleFeedDetails(id, event) {
-    // Stop the click from expanding if they are just clicking the Upvote button
     if(event.target.closest('.upvote-btn')) return;
-    
     const detailBox = document.getElementById(`detail-${id}`);
     if(detailBox.style.display === "none") {
       detailBox.style.display = "block";
@@ -224,7 +217,6 @@
         feedItem.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
         feedItem.style.boxShadow = "0 0 0 4px rgba(26,115,232,0.3)"; 
         setTimeout(()=> feedItem.style.boxShadow="none", 2000); 
-        // Auto expand it!
         document.getElementById(`detail-${reportId}`).style.display = "block";
       }
     }, 150);
@@ -299,7 +291,10 @@
       markerGroup.clearLayers(); 
 
       let typeCounts = { 'Pothole': 0, 'Bridge Crack': 0, 'Drainage Block': 0, 'Broken Streetlight': 0 };
-      let notifCount = 0; let totalRatings = 0; let ratedItems = 0;
+      let notifCount = 0; 
+      
+      // NEW: Dynamic Contractor Stats Tracker
+      let contractorStats = {};
 
       data.sort((a, b) => b.upvotes - a.upvotes || new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -310,7 +305,6 @@
         let submitDate = new Date(c.createdAt);
         let formattedDate = submitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         
-        // Calculate "Days Untouched"
         let daysUntouched = Math.floor((new Date() - submitDate) / (1000 * 60 * 60 * 24));
         let untouchedText = daysUntouched === 0 ? "Posted Today" : `${daysUntouched} Days Pending`;
         if(c.status === "Resolved") untouchedText = "Resolved";
@@ -318,10 +312,15 @@
         let imgSrc = getImageUrl(c.imageUrl);
         let thumbnailHtml = imgSrc ? `<img src="${imgSrc}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; border:1px solid #eee; flex-shrink:0;">` : '';
 
-        // 1. COMMUNITY FEED - Now Expandable on Click!
+        // Tracker for Contractors Leaderboard
+        let cName = c.contractorName || 'Unassigned';
+        if (!contractorStats[cName]) { contractorStats[cName] = { assigned: 0, resolved: 0, ratingSum: 0, ratingCount: 0 }; }
+        contractorStats[cName].assigned++;
+        if (c.status === "Resolved") contractorStats[cName].resolved++;
+        if (c.rating) { contractorStats[cName].ratingSum += c.rating; contractorStats[cName].ratingCount++; }
+
         document.getElementById("reportsList").innerHTML += `
           <div class="report-item" id="feed-item-${c._id}" style="margin-bottom:15px;" onclick="toggleFeedDetails('${c._id}', event)">
-            
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
               <div style="display:flex; gap:12px; align-items:center;">
                 ${thumbnailHtml}
@@ -332,7 +331,6 @@
               </div>
               <span class="status-badge ${badgeClass}">${displayStatus}</span>
             </div>
-
             <div id="detail-${c._id}" style="display:none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
               ${imgSrc ? `<img src="${imgSrc}" style="width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px;">` : ''}
               <div style="background:#f8f9fa; padding:12px; border-radius:8px; font-size:13px; color:#444; font-style:italic; margin-bottom:12px; border-left:3px solid var(--accent-color);">
@@ -345,7 +343,6 @@
                 <div><strong>⚠️ Severity:</strong> ${c.severity}</div>
               </div>
             </div>
-
             <div style="display:flex; justify-content:space-between; align-items:center; background: #f8f9fa; padding: 10px 14px; border-radius: 8px;">
               <div style="width: 60%; background: #e0e0e0; height: 6px; border-radius: 3px; overflow: hidden; position: relative;">
                 <div style="width: ${c.status === 'Resolved' ? 100 : c.progressPercentage}%; background: ${c.status === 'Resolved' ? '#1e8e3e' : 'var(--accent-color)'}; height: 100%;"></div>
@@ -355,7 +352,6 @@
           </div>
         `;
 
-        // 2. TRACK & RATE TAB
         if (c.status !== "Resolved") {
           document.getElementById("trackingList").innerHTML += `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
@@ -392,7 +388,6 @@
               </div>
             `;
           } else {
-            totalRatings += c.rating; ratedItems++;
             document.getElementById("trackingList").innerHTML += `
               <div class="card" style="opacity: 0.8;">
                 <div style="display:flex; justify-content:space-between;">
@@ -404,7 +399,6 @@
           }
         }
 
-        // 3. MAP POPUPS (Updated with new detailed info!)
         if (c.latitude && c.longitude) {
           const mapIcon = L.divIcon({ className: 'custom-icon', html: `<div style="font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">📍</div>`, iconSize: [30, 30] });
           let popupContent = `
@@ -415,11 +409,9 @@
                 <span style="font-size:10px; font-weight:bold; background:#fce8e6; color:#d93025; padding:2px 6px; border-radius:10px;">${untouchedText}</span>
               </div>
               <span style="color: #5f6368; font-size: 12px; display:block; margin-bottom:8px;">📍 ${c.areaName}</span>
-              
               <div style="background:#f8f9fa; padding:8px; border-radius:6px; font-size:12px; font-style:italic; color:#444; border-left:2px solid var(--accent-color);">
                 "${c.complaintText.substring(0,80)}${c.complaintText.length > 80 ? '...' : ''}"
               </div>
-              
               <div style="font-size: 11px; color: #5f6368; margin-top: 8px;"><strong>🏢 Contractor:</strong> ${c.contractorName || 'Pending'}</div>
               <button onclick="viewInFeed('${c._id}')" style="margin-top:10px; width:100%; padding:8px; background:var(--accent-color); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">View Full Detail in Feed</button>
             </div>
@@ -430,10 +422,43 @@
         if (typeCounts[c.damageType] !== undefined) typeCounts[c.damageType]++;
       });
 
+      // --- DYNAMIC LEADERBOARD RENDER ---
+      let leaderboardHtml = "";
+      
+      // Sort contractors by highest rating score first
+      let sortedContractors = Object.keys(contractorStats).sort((a, b) => {
+           let scoreA = contractorStats[a].ratingCount > 0 ? contractorStats[a].ratingSum / contractorStats[a].ratingCount : 0;
+           let scoreB = contractorStats[b].ratingCount > 0 ? contractorStats[b].ratingSum / contractorStats[b].ratingCount : 0;
+           return scoreB - scoreA;
+      });
+
+      sortedContractors.forEach(name => {
+          let stats = contractorStats[name];
+          let scoreDisplay = stats.ratingCount > 0 ? `${((stats.ratingSum / (stats.ratingCount * 5)) * 100).toFixed(0)}%` : `N/A`;
+          // Color logic: Green for good, Grey for N/A, Orange for anything else
+          let color = scoreDisplay !== 'N/A' && parseInt(scoreDisplay) > 80 ? '#1e8e3e' : (scoreDisplay === 'N/A' ? '#9aa0a6' : '#f9ab00');
+
+          leaderboardHtml += `
+          <div class="card" style="margin-bottom: 16px; transition: 0.2s;">
+            <div style="display: flex; flex-direction: row; align-items:center;">
+              <div>
+                <strong style="font-size: 18px;">${name}</strong>
+                <div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">
+                  Assigned Issues: <strong>${stats.assigned}</strong> | Resolved: <strong>${stats.resolved}</strong>
+                </div>
+              </div>
+              <div style="text-align: right; flex: 1;">
+                <div style="font-size: 28px; font-weight: bold; color: ${color};">${scoreDisplay}</div>
+                <div style="color: var(--text-muted); font-size: 12px;">Satisfaction Score</div>
+              </div>
+            </div>
+          </div>
+          `;
+      });
+      document.getElementById('contractorLeaderboard').innerHTML = leaderboardHtml;
+
       const badge = document.getElementById("notifCount");
       if(notifCount > 0) { badge.style.display = "flex"; badge.innerText = notifCount; } else { badge.style.display = "none"; document.getElementById("notifList").innerHTML = "No new alerts.";}
-
-      if(ratedItems > 0) { document.getElementById("contractorScore").innerText = `${((totalRatings / (ratedItems * 5)) * 100).toFixed(0)}%`; }
 
       document.getElementById("totalReports").innerText = data.length;
       document.getElementById("pendingReports").innerText = data.filter(c => c.status !== "Resolved").length;

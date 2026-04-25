@@ -3,50 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Welcome - FixMyCity</title>
+<title>Authentication - FixMyCity Command Center</title>
 <style>
-  :root { --bg-color: #f7f9fa; --text-main: #202124; --text-muted: #5f6368; --accent-color: #1a73e8; --accent-hover: #1557b0; --card-bg: #ffffff; --border-radius: 16px; --shadow-blurred: 0 40px 100px rgba(0, 0, 0, 0.08); --error-color: #d93025; }
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+  /* ENTERPRISE SLATE THEME */
+  :root {
+    --bg-color: #f0f2f5;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --accent-color: #2563eb;
+    --accent-hover: #1d4ed8;
+    --card-bg: #ffffff;
+    --border-radius: 8px;
+    --shadow-solid: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --error-color: #dc2626;
+  }
 
-  .left-panel { width: 45%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; z-index: 10; position: relative; box-shadow: 10px 0 30px rgba(0,0,0,0.05); padding: 0 5%; overflow-y: auto;}
-  .right-panel { width: 55%; position: relative; overflow: hidden; background: #202124; }
-  .right-panel-slider { display: flex; width: 200%; height: 100%; transition: transform 0.8s ease-in-out; }
-  .slide { width: 50%; height: 100%; position: relative; background-size: cover; background-position: center; background-repeat: no-repeat; }
-  .slide-1 { background-image: url('https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1200&q=80'); }
-  .slide-2 { background-image: url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1200&q=80'); }
-  .right-panel-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to right, rgba(26, 33, 48, 0.85), rgba(26, 33, 48, 0.2)); display: flex; flex-direction: column; justify-content: center; padding: 80px; color: white; }
-  .right-panel h1 { font-size: 48px; margin-bottom: 20px; letter-spacing: -1px; line-height: 1.1; }
-  .right-panel p { font-size: 20px; color: #e8eaed; max-width: 80%; line-height: 1.5; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-  .auth-card { background: var(--card-bg); padding: 40px; border-radius: var(--border-radius); box-shadow: var(--shadow-blurred); width: 100%; max-width: 420px; margin: 40px 0; }
-  .logo-area { display: flex; justify-content: center; margin-bottom: 30px; margin-top: 20px;}
-  .brand-logo { width: 200px; height: auto; object-fit: contain; }
+  /* Split Layout */
+  .left-panel {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #f8fafc; /* Very light slate gray */
+    z-index: 10;
+    position: relative;
+    border-right: 1px solid #e2e8f0;
+    padding: 0 5%;
+    overflow-y: auto;
+  }
 
-  .form-container { display: none; animation: fadeIn 0.4s ease; }
+  .right-panel {
+    width: 60%;
+    position: relative;
+    overflow: hidden;
+    background: #0f172a;
+  }
+
+  .right-panel-slider {
+    display: flex;
+    width: 200%;
+    height: 100%;
+    transition: transform 0.8s ease-in-out;
+  }
+
+  .slide {
+    width: 50%;
+    height: 100%;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .slide-1 { background-image: url('https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1200&q=80'); filter: grayscale(20%); }
+  .slide-2 { background-image: url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1200&q=80'); filter: grayscale(20%); }
+
+  /* Darker, more serious overlay */
+  .right-panel-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to right, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.4));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px;
+    color: white;
+  }
+
+  .right-panel h1 {
+    font-size: 42px;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .right-panel p {
+    font-size: 18px;
+    color: #cbd5e1;
+    max-width: 80%;
+    line-height: 1.5;
+  }
+
+  /* Sharp Boxed Auth System */
+  .auth-card {
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-solid);
+    border: 1px solid #e2e8f0;
+    width: 100%;
+    max-width: 420px;
+    margin: 40px 0;
+  }
+
+  .logo-area {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  
+  .brand-logo {
+    width: 180px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .form-container {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
   .form-container.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  h2 { font-size: 28px; margin: 0 0 10px 0; letter-spacing: -0.5px; color: #202124; }
-  p.subtitle { color: var(--text-muted); margin: 0 0 25px 0; font-size: 14px; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h2 {
+    font-size: 24px;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+    color: #0f172a;
+  }
+
+  p.subtitle {
+    color: var(--text-muted);
+    margin: 0 0 25px 0;
+    font-size: 13px;
+  }
+
   .form-group { margin-bottom: 16px; }
   .form-row { display: flex; gap: 12px; }
   .form-row .form-group { flex: 1; }
-  label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #3c4043; }
-  input, select { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; box-sizing: border-box; transition: 0.2s; background: #fafafa; font-family: inherit; }
-  input:focus, select:focus { outline: none; border-color: var(--accent-color); background: white; box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); }
   
-  .checkbox-group { display: flex; gap: 10px; align-items: flex-start; margin: 20px 0; }
-  .checkbox-group input { width: 18px; height: 18px; margin-top: 2px; cursor: pointer; }
-  .checkbox-group label { font-size: 12px; color: var(--text-muted); font-weight: 400; line-height: 1.4; margin: 0;}
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-  button.btn-primary { width: 100%; padding: 14px; border: none; border-radius: 8px; background: var(--text-main); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-  button.btn-primary:hover { background: black; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-  .toggle-text { margin-top: 20px; text-align: center; font-size: 13px; color: var(--text-muted); }
-  .toggle-text a { color: var(--accent-color); font-weight: 600; text-decoration: none; cursor: pointer; }
+  input, select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px; /* Sharper corners */
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: 0.2s;
+    background: #f8fafc;
+    font-family: inherit;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  
+  .checkbox-group { display: flex; gap: 10px; align-items: flex-start; margin: 20px 0; padding: 12px; background: #f1f5f9; border-radius: 6px; border: 1px solid #e2e8f0;}
+  .checkbox-group input { width: 16px; height: 16px; margin-top: 2px; cursor: pointer; }
+  .checkbox-group label { font-size: 11px; color: #475569; font-weight: 500; line-height: 1.4; margin: 0; text-transform: none; letter-spacing: 0;}
+
+  button.btn-primary {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent-color);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  button.btn-primary:hover {
+    background: var(--accent-hover);
+  }
+
+  .toggle-text {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .toggle-text a {
+    color: var(--accent-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
   .toggle-text a:hover { text-decoration: underline; }
-  .alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 500; display: none; text-align: center; }
-  .alert.error { background: #fce8e6; color: var(--error-color); border: 1px solid rgba(217,48,37,0.2); display: block; }
-  .alert.success { background: #e6f4ea; color: #1e8e3e; border: 1px solid rgba(30,142,62,0.2); display: block; }
+
+  .alert {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: none;
+    text-align: center;
+  }
+
+  .alert.error { background: #fef2f2; color: var(--error-color); border: 1px solid #fca5a5; display: block; }
+  .alert.success { background: #ecfdf5; color: #059669; border: 1px solid #6ee7b7; display: block; }
 </style>
 </head>
 <body>
@@ -56,48 +236,50 @@
       <div class="logo-area"><img src="logo.png" alt="FixMyCity Logo" class="brand-logo" onerror="this.style.display='none'"></div>
       
       <div class="form-container active" id="loginView">
-        <h2>Welcome back</h2>
-        <p class="subtitle">Enter your details to access the dashboard.</p>
+        <h2>Citizen Command Portal</h2>
+        <p class="subtitle">Authenticate using verified municipal credentials.</p>
         <div id="loginAlert" class="alert"></div>
         <form id="loginForm">
-          <div class="form-group"><label>Email Address</label><input type="email" name="email" required></div>
-          <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
-          <button type="submit" class="btn-primary" id="loginBtn">Secure Log In</button>
+          <div class="form-group"><label>Registered Email</label><input type="email" name="email" placeholder="citizen@example.com" required></div>
+          <div class="form-group"><label>Security Phrase</label><input type="password" name="password" placeholder="••••••••" required></div>
+          <button type="submit" class="btn-primary" id="loginBtn">Initialize Session</button>
         </form>
         <div class="toggle-text">Unregistered Citizen? <a onclick="toggleForms('registerView')">Complete KYC Setup</a></div>
       </div>
 
       <div class="form-container" id="registerView">
-        <h2>Citizen KYC Setup</h2>
-        <p class="subtitle">Complete identity verification to report civic issues.</p>
+        <h2>Identity Verification</h2>
+        <p class="subtitle">Mandatory KYC setup for civic reporting access.</p>
         <div id="registerAlert" class="alert"></div>
         <form id="registerForm">
-          <div class="form-group"><label>Full Name (As per Govt ID)</label><input type="text" name="name" required></div>
+          <div class="form-group"><label>Legal Name</label><input type="text" name="name" placeholder="As per Govt ID" required></div>
           <div class="form-row">
-            <div class="form-group"><label>Aadhar Number</label><input type="text" name="aadhar" placeholder="XXXX XXXX XXXX" pattern="[0-9]{12}" maxlength="12" required></div>
-            <div class="form-group"><label>Mobile Number</label><input type="tel" name="phone" placeholder="+91" required></div>
+            <div class="form-group"><label>Aadhar ID</label><input type="text" name="aadhar" placeholder="XXXX XXXX XXXX" pattern="[0-9]{12}" maxlength="12" required></div>
+            <div class="form-group"><label>Mobile Contact</label><input type="tel" name="phone" placeholder="+91" required></div>
           </div>
           <div class="form-group">
-            <label>Residential Ward / Zone</label>
+            <label>Residential Jurisdiction</label>
             <select name="ward" required>
-              <option value="">Select your ward...</option>
+              <option value="">Select municipal zone...</option>
               <option>Zone 1 - Central District</option>
               <option>Zone 2 - North District</option>
               <option>Zone 3 - East Colony</option>
               <option>Zone 4 - South Extension</option>
             </select>
           </div>
-          <div class="form-group"><label>Email Address</label><input type="email" name="email" required></div>
-          <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
+          <div class="form-row">
+            <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+            <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
+          </div>
           
           <div class="checkbox-group">
             <input type="checkbox" id="terms" required>
-            <label for="terms">I verify that the above details are accurate. I understand that submitting false civic reports may lead to account suspension under municipal guidelines.</label>
+            <label for="terms">I verify these details are accurate. Submitting fraudulent civic reports violates municipal guidelines and may result in credential revocation.</label>
           </div>
 
-          <button type="submit" class="btn-primary" id="registerBtn">Verify & Create Account</button>
+          <button type="submit" class="btn-primary" id="registerBtn">Verify & Register Identity</button>
         </form>
-        <div class="toggle-text">Already verified? <a onclick="toggleForms('loginView')">Log in here</a></div>
+        <div class="toggle-text">Already verified? <a onclick="toggleForms('loginView')">Return to Login</a></div>
       </div>
 
     </div>
@@ -105,8 +287,18 @@
 
   <div class="right-panel">
     <div class="right-panel-slider" id="panelSlider">
-      <div class="slide slide-1"><div class="right-panel-overlay"><h1>REPORT CIVIC<br>PROBLEMS.</h1><p>Report visible issues like potholes and broken lights directly to the assigned contractor in your ward.</p></div></div>
-      <div class="slide slide-2"><div class="right-panel-overlay"><h1>TRACK MUNICIPAL<br>RESULTS.</h1><p>Verify problem resolution and rate contractor performance. Keeping authorities and contractors accountable.</p></div></div>
+      <div class="slide slide-1">
+        <div class="right-panel-overlay">
+          <h1>Civic Infrastructure Grid</h1>
+          <p>Secure geospatial portal for logging and routing municipal asset degradation to active contractors.</p>
+        </div>
+      </div>
+      <div class="slide slide-2">
+        <div class="right-panel-overlay">
+          <h1>Contractor Accountability</h1>
+          <p>Immutable public ledger of repair metrics, resolution SLA times, and citizen satisfaction scores.</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -134,25 +326,25 @@
       const res = await fetch("http://localhost:5000/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.fromEntries(new FormData(e.target))) });
       const result = await res.json();
       if (res.ok) { localStorage.setItem("user", JSON.stringify(result.user)); window.location.href = "dashboard.html"; } 
-      else { alertBox.innerText = result.message; alertBox.className = "alert error"; btn.innerText = "Secure Log In"; }
-    } catch (err) { alertBox.innerText = "Connection failed."; alertBox.className = "alert error"; btn.innerText = "Secure Log In"; }
+      else { alertBox.innerText = result.message; alertBox.className = "alert error"; btn.innerText = "Initialize Session"; }
+    } catch (err) { alertBox.innerText = "Server connection failed."; alertBox.className = "alert error"; btn.innerText = "Initialize Session"; }
   });
 
   document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = document.getElementById("registerBtn"); const alertBox = document.getElementById("registerAlert");
-    btn.innerText = "Verifying Identity..."; alertBox.className = "alert"; 
+    btn.innerText = "Processing Identity..."; alertBox.className = "alert"; 
     try {
       const res = await fetch("http://localhost:5000/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.fromEntries(new FormData(e.target))) });
       const result = await res.json();
       if (res.ok) {
-        alertBox.innerHTML = "<strong>✅ KYC Verified!</strong> Account created successfully.";
+        alertBox.innerHTML = "<strong>Identity Verified.</strong> Access granted.";
         alertBox.className = "alert success";
         e.target.reset();
-        setTimeout(() => { toggleForms('loginView'); }, 2000);
+        setTimeout(() => { toggleForms('loginView'); }, 1500);
       } else { alertBox.innerText = result.message; alertBox.className = "alert error"; }
-    } catch (err) { alertBox.innerText = "Connection failed."; alertBox.className = "alert error"; }
-    btn.innerText = "Verify & Create Account";
+    } catch (err) { alertBox.innerText = "Server connection failed."; alertBox.className = "alert error"; }
+    btn.innerText = "Verify & Register Identity";
   });
 </script>
 </body>

@@ -10,15 +10,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-  /* SERIOUS CORPORATE THEME */
   :root { 
     --bg-color: #f0f2f5; 
-    --sidebar-bg: #1e293b; /* Deep slate sidebar */
+    --sidebar-bg: #1e293b; 
     --text-main: #0f172a; 
     --text-muted: #64748b; 
     --accent-color: #2563eb; 
     --card-bg: #ffffff; 
-    --border-radius: 8px; /* Sharper corners for serious look */
+    --border-radius: 8px; 
     --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.1); 
   }
   
@@ -26,8 +25,10 @@
 
   /* Dark Sidebar */
   .sidebar { width: 260px; background: var(--sidebar-bg); padding: 30px 20px; display: flex; flex-direction: column; color: white; z-index: 10; box-shadow: 2px 0 10px rgba(0,0,0,0.1);}
-  .logo-area { display: flex; justify-content: center; margin-bottom: 40px; }
-  .sidebar-logo { height: 45px; width: auto; object-fit: contain; filter: brightness(0) invert(1); /* Makes logo white for dark sidebar */ }
+  
+  /* FIXED LOGO AREA - Clean white badge container */
+  .logo-area { display: flex; justify-content: center; margin-bottom: 40px; background: white; padding: 12px 16px; border-radius: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+  .sidebar-logo { height: 35px; width: auto; object-fit: contain; } 
   
   .nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
   .nav-item { padding: 12px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; color: #94a3b8; transition: all 0.2s ease; display: flex; align-items: center; font-size: 14px;}
@@ -38,8 +39,18 @@
   .vip-demo-btn:hover { background: #b91c1c; }
   .logout-btn { padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 500; color: #cbd5e1; background: transparent; border: 1px solid #475569; text-align: center; transition: 0.2s; font-size: 14px;}
 
-  /* Top Navbar */
-  .top-navbar { position: absolute; top: 0; left: 300px; right: 0; height: 70px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: flex-end; padding: 0 40px; z-index: 100; box-shadow: 0 1px 2px rgba(0,0,0,0.02);}
+  /* Top Navbar - UPDATED TO FILL EMPTY SPACE */
+  .top-navbar { position: absolute; top: 0; left: 300px; right: 0; height: 70px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; z-index: 100; box-shadow: 0 1px 2px rgba(0,0,0,0.02);}
+  
+  /* Search & Status Elements */
+  .nav-left-tools { display: flex; align-items: center; gap: 24px; }
+  .search-wrapper { position: relative; }
+  .search-icon { position: absolute; left: 14px; top: 12px; font-size: 14px; opacity: 0.5; }
+  .global-search { padding: 10px 10px 10px 40px; width: 300px; border-radius: 20px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 13px; outline: none; transition: 0.2s;}
+  .global-search:focus { border-color: var(--accent-color); background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  .system-status { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
+
   .user-profile { display: flex; align-items: center; gap: 12px; }
   .user-text { text-align: right; }
   .user-name { font-size: 13px; font-weight: 700; color: var(--text-main); }
@@ -54,10 +65,11 @@
   .top-header h1 { font-size: 26px; margin: 0 0 4px 0; letter-spacing: -0.5px; color: var(--text-main); }
   .top-header p { color: var(--text-muted); margin: 0; font-size: 14px; }
 
-  /* Tense/Serious Alert Ticker */
+  /* Tense/Serious Alert Ticker - SLOWED DOWN */
   .alert-ticker-wrap { background: #1e293b; border-left: 4px solid #ef4444; padding: 12px 0; overflow: hidden; position: relative; border-radius: 6px; margin-bottom: 24px; display: flex; align-items: center; box-shadow: var(--shadow-subtle);}
   .ticker-label { background: #ef4444; color: white; font-weight: 700; font-size: 11px; padding: 4px 8px; border-radius: 4px; margin: 0 15px; white-space: nowrap; z-index: 2; letter-spacing: 0.5px;}
-  .ticker-content { display: flex; white-space: nowrap; animation: ticker 40s linear infinite; }
+  .ticker-content { display: flex; white-space: nowrap; animation: ticker 65s linear infinite; } /* Slower Speed */
+  .ticker-content:hover { animation-play-state: paused; cursor: pointer; }
   .ticker-item { margin-right: 50px; font-size: 13px; color: #f8fafc; font-weight: 500; font-family: monospace;}
   @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-150%); } }
 
@@ -74,7 +86,7 @@
 
   .form-group { margin-bottom: 16px; }
   label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--text-main); }
-  input, select, textarea { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px; box-sizing: border-box; background: #f8fafc; font-family: inherit;}
+  input, select, textarea { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px; box-sizing: border-box; background: #f8fafc; font-family: inherit; margin-bottom: 0;}
   button.btn-primary { padding: 12px 20px; border: none; border-radius: 6px; background: var(--accent-color); color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
   button.btn-secondary { padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; color: var(--text-main); font-size: 13px; cursor: pointer; font-weight: 500;}
 
@@ -86,7 +98,6 @@
   .report-item { padding: 16px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);}
   .report-item:hover { border-color: #94a3b8; }
   
-  /* Serious Badges */
   .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
   .status-pending { border: 1px solid #fca5a5; color: #dc2626; background: #fef2f2;}
   .status-resolved { border: 1px solid #6ee7b7; color: #059669; background: #ecfdf5;}
@@ -97,9 +108,7 @@
   .sev-Medium { background: #f59e0b; }
   .sev-Low { background: #10b981; }
 
-  /* Outer Card Data Density */
   .feed-meta-row { display: flex; gap: 16px; font-size: 12px; color: #64748b; margin-top: 8px; font-family: monospace;}
-
   .upvote-btn { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; font-size: 12px;}
   
   .processing-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
@@ -123,6 +132,16 @@
   </div>
 
   <div class="top-navbar">
+    <div class="nav-left-tools">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="global-search" placeholder="Search Global Database (IDs, Wards, Types)...">
+      </div>
+      <div class="system-status">
+        <span class="status-dot"></span> System Online
+      </div>
+    </div>
+    
     <div class="user-profile">
       <div class="user-text">
         <div class="user-name" id="navUserName">Loading...</div>
@@ -133,7 +152,9 @@
   </div>
 
   <div class="sidebar">
-    <div class="logo-area"><img src="logo.png" alt="FixMyCity Logo" class="sidebar-logo" onerror="this.style.display='none'"></div>
+    <div class="logo-area">
+      <img src="logo.png" alt="FixMyCity Logo" class="sidebar-logo" onerror="this.style.display='none'">
+    </div>
     <div class="nav-menu">
       <div class="nav-item active" onclick="switchTab('overview')">Command Overview</div>
       <div class="nav-item" onclick="switchTab('report')">Log New Issue</div>
@@ -159,9 +180,6 @@
           <h1>Command Overview</h1>
           <p>Real-time civic infrastructure tracking and resolution metrics.</p>
         </div>
-        <button class="btn-primary" onclick="exportToCSV()" style="display: flex; align-items: center; gap: 8px;">
-          ⬇️ Export Official CSV
-        </button>
       </div>
 
       <div class="dashboard-grid">
@@ -256,7 +274,6 @@
   </div>
 
 <script>
-  // Global data store for the CSV Export
   let globalComplaintData = [];
 
   const userData = JSON.parse(localStorage.getItem("user"));
@@ -311,7 +328,6 @@
 
   async function simulateFix(id) { try { await fetch(`http://localhost:5000/complaint/${id}/simulate-resolve`, { method: "PATCH" }); loadComplaints(); } catch (e) {} }
 
-  // SERIOUS CORPORATE CHART
   const ctx = document.getElementById('issueChart').getContext('2d');
   const issueChart = new Chart(ctx, { 
     type: 'bar', 
@@ -340,7 +356,7 @@
     try {
       const res = await fetch("http://localhost:5000/complaint");
       let data = await res.json();
-      globalComplaintData = data; // Save for export
+      globalComplaintData = data; 
 
       const selectedWard = document.getElementById('wardFilter').value;
 
@@ -355,7 +371,6 @@
       data.sort((a, b) => b.upvotes - a.upvotes || new Date(b.createdAt) - new Date(a.createdAt));
 
       data.forEach(c => { 
-        // Build Ticker
         let submitDate = new Date(c.createdAt);
         let daysUntouched = Math.floor((new Date() - submitDate) / (1000 * 60 * 60 * 24));
         if (c.status === "Resolved") tickerHtml += `<span class="ticker-item" style="color:#10b981;">[RESOLVED] ${c.damageType} at ${c.areaName} verified clear.</span>`;
@@ -369,16 +384,13 @@
         let imgSrc = getImageUrl(c.imageUrl);
         let thumbnailHtml = imgSrc ? `<img src="${imgSrc}" style="width:48px; height:48px; object-fit:cover; border-radius:4px; border:1px solid #e2e8f0; flex-shrink:0;">` : '';
 
-        // Tracker Setup
         let cName = c.contractorName || 'Unassigned';
         if (!contractorStats[cName]) { contractorStats[cName] = { assigned: 0, resolved: 0, ratingSum: 0, ratingCount: 0 }; }
         contractorStats[cName].assigned++;
         if (c.status === "Resolved") contractorStats[cName].resolved++;
         if (c.rating) { contractorStats[cName].ratingSum += c.rating; contractorStats[cName].ratingCount++; }
 
-        // WARD FILTER LOGIC
         if (selectedWard === "ALL" || c.ward === selectedWard || (!c.ward && selectedWard === "ALL")) {
-          
           document.getElementById("reportsList").innerHTML += `
             <div class="report-item" id="feed-item-${c._id}" onclick="toggleFeedDetails('${c._id}', event)">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
@@ -415,16 +427,23 @@
           document.getElementById("trackingList").innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px;"><div><strong style="font-size:14px;">ID #${c._id.substring(c._id.length-6).toUpperCase()} - ${c.damageType}</strong><br><span style="font-size:12px; color:#64748b;">${c.areaName}</span></div><button onclick="simulateFix('${c._id}')" class="btn-primary" style="width:auto; padding:8px 12px; font-size:12px; background:#1e293b;">Mark Resolved</button></div>`;
         }
 
+        // MAP POPUP RESTORED - WITH IMAGE!
         if (c.latitude && c.longitude) {
-          const mapIcon = L.divIcon({ className: 'custom-icon', html: `<div style="font-size: 24px;">📍</div>`, iconSize: [24, 24] });
-          L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup).bindPopup(`<div style="font-family:sans-serif; width:200px;"><strong style="font-size:13px;">${c.damageType}</strong><br><span style="font-size:11px; color:#64748b;">${c.areaName}</span></div>`);
+          const mapIcon = L.divIcon({ className: 'custom-icon', html: `<div style="font-size: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">📍</div>`, iconSize: [24, 24] });
+          let popupContent = `
+            <div style="width: 220px; font-family: sans-serif;">
+              ${imgSrc ? `<img src="${imgSrc}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">` : ''}
+              <strong style="font-size: 14px; color:#0f172a;">${c.damageType}</strong><br>
+              <span style="font-size:11px; color:#64748b;">📍 ${c.areaName}</span>
+              <div style="margin-top:8px; font-size:12px; color:#334155; border-left:2px solid var(--accent-color); padding-left:6px;">"${c.complaintText.substring(0,60)}..."</div>
+            </div>`;
+          L.marker([c.latitude, c.longitude], {icon: mapIcon}).addTo(markerGroup).bindPopup(popupContent);
         }
         if (typeCounts[c.damageType] !== undefined) typeCounts[c.damageType]++;
       });
 
       if(tickerHtml !== "") document.getElementById('liveTicker').innerHTML = tickerHtml + tickerHtml;
 
-      // Render Contractors
       let leaderboardHtml = "";
       Object.keys(contractorStats).sort((a,b) => contractorStats[b].resolved - contractorStats[a].resolved).forEach(name => {
           let stats = contractorStats[name];
@@ -440,24 +459,6 @@
       issueChart.data.datasets[0].data = [ typeCounts['Pothole'], typeCounts['Bridge Crack'], typeCounts['Drainage Block'], typeCounts['Broken Streetlight'] ];
       issueChart.update();
     } catch (error) {}
-  }
-
-  // --- NEW: EXPORT TO CSV FUNCTION ---
-  function exportToCSV() {
-    if(globalComplaintData.length === 0) return alert("No data to export.");
-    let csvContent = "data:text/csv;charset=utf-8,ID,Type,Severity,Status,Ward,Location,Contractor,Date Logged,Upvotes\n";
-    globalComplaintData.forEach(row => {
-      let id = row._id.substring(row._id.length - 6).toUpperCase();
-      let rowArray = [id, row.damageType, row.severity, row.status, row.ward || "Unassigned", `"${row.areaName}"`, `"${row.contractorName || 'Pending'}"`, new Date(row.createdAt).toLocaleDateString(), row.upvotes];
-      csvContent += rowArray.join(",") + "\n";
-    });
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `FixMyCity_DataExport_${new Date().getTime()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   }
 
   function closeOverlay() { document.getElementById("processingOverlay").style.display = "none"; switchTab('overview'); }
